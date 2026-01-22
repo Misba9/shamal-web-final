@@ -1,0 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme - based on Shamal logo colors */
+    --background: 210 20% 98%;
+    --foreground: 210 50% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 50% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 50% 20%;
+
+    /* Primary - Deep Navy Blue (#0A3254) */
+    --primary: 209 78% 18%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 209 60% 35%;
+
+    /* Secondary - Medium Blue (#226093) */
+    --secondary: 209 63% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted surfaces */
+    --muted: 210 20% 94%;
+    --muted-foreground: 210 15% 45%;
+
+    /* Accent - Medium Blue for highlights */
+    --accent: 209 63% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 209 78% 18%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --glow-primary: 0 0 60px hsl(209 78% 18% / 0.15);
+    --glow-accent: 0 0 60px hsl(209 63% 35% / 0.15);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(209 78% 18%) 0%, hsl(209 63% 35%) 100%);
+    --gradient-light: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(210 25% 95%) 100%);
+    --gradient-radial: radial-gradient(ellipse at center, hsl(210 25% 96%) 0%, hsl(210 20% 98%) 70%);
+    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(210 20% 98% / 0.6) 50%, hsl(210 20% 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(210 20% 97%) 100%);
+
+    /* Typography scale */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsl(209 78% 18% / 0.08);
+    --shadow-md: 0 8px 24px hsl(209 78% 18% / 0.1);
+    --shadow-lg: 0 16px 48px hsl(209 78% 18% / 0.12);
+    --shadow-glow: 0 0 40px hsl(209 63% 35% / 0.1);
+
+    /* Sidebar - keeping for component compatibility */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 210 50% 20%;
+    --sidebar-primary: 209 78% 18%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 94%;
+    --sidebar-accent-foreground: 210 50% 20%;
+    --sidebar-border: 210 20% 88%;
+    --sidebar-ring: 209 78% 18%;
+  }
+
+  .dark {
+    --background: 210 50% 8%;
+    --foreground: 210 20% 98%;
+
+    --card: 210 40% 12%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 210 40% 12%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 209 78% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 209 63% 55%;
+
+    --secondary: 209 40% 25%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 210 30% 18%;
+    --muted-foreground: 210 15% 60%;
+
+    --accent: 209 63% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 210 30% 22%;
+    --input: 210 30% 22%;
+    --ring: 209 78% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: auto; /* Let Lenis handle scrolling */
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* Hero text gradient */
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+
+  /* Card with gradient */
+  .card-gradient {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Section containers */
+  .section-container {
+    @apply relative w-full min-h-screen flex items-center justify-center overflow-hidden;
+  }
+
+  .section-content {
+    @apply container mx-auto px-4 md:px-6 lg:px-8 py-20 md:py-32;
+  }
+
+  /* Animated underline for links */
+  .link-underline {
+    @apply relative;
+  }
+
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-primary origin-left scale-x-0 transition-transform duration-300;
+  }
+
+  .link-underline:hover::after {
+    @apply scale-x-100;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+
+  /* Noise overlay for texture */
+  .noise-overlay::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none opacity-[0.02];
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Scroll indicator */
+  .scroll-indicator {
+    @apply animate-bounce;
+  }
+
+  /* Stats counter style */
+  .stat-number {
+    font-family: var(--font-display);
+    @apply text-5xl md:text-6xl lg:text-7xl font-bold text-gradient-primary;
+  }
+
+  /* Service card hover */
+  .service-card {
+    @apply relative overflow-hidden transition-all duration-500;
+  }
+
+  .service-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: linear-gradient(135deg, hsl(209 63% 35% / 0.08) 0%, transparent 50%);
+  }
+
+  .service-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .service-card:hover {
+    @apply border-primary/30;
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Respect reduced motion for hover effects */
+  @media (prefers-reduced-motion: reduce) {
+    .service-card:hover {
+      transform: none;
+    }
+  }
+}
+
+@layer utilities {
+  /* Animation delays */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom thin scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.2);
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.4);
+  }
+
+  /* Perspective for 3D transforms */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* Mask gradients for fade effects */
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+
+  /* Page transition animations */
+  .page-transition-wrapper {
+    @apply w-full;
+  }
+
+  .page-transition-entering {
+    animation: page-fade-out 300ms ease-out forwards;
+  }
+
+  .page-transition-entered {
+    animation: page-fade-in 400ms ease-out forwards;
+  }
+
+  @keyframes page-fade-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes page-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .page-transition-entering,
+    .page-transition-entered {
+      animation: none;
+    }
+    
+    .animate-fade-in-up-sm,
+    .animate-fade-in-up {
+      animation: none;
+    }
+  }
+}
