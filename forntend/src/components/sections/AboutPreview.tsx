@@ -52,6 +52,33 @@ export function AboutPreview() {
             toggleActions: 'play none none reverse',
           },
         });
+
+        // Animate Numbers
+        const statNumbers = visualRef.current.querySelectorAll('.stat-number');
+        statNumbers.forEach((item) => {
+          const originalText = item.textContent || '0';
+          const match = originalText.match(/(\d+)(.*)/);
+          
+          if (match) {
+            const endValue = parseInt(match[1], 10);
+            const suffix = match[2];
+            const obj = { val: 0 };
+
+            gsap.to(obj, {
+              val: endValue,
+              duration: 2,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: visualRef.current,
+                start: 'top 80%',
+                once: true,
+              },
+              onUpdate: () => {
+                item.textContent = `${Math.floor(obj.val)}${suffix}`;
+              }
+            });
+          }
+        });
       }
     }, sectionRef);
 
@@ -99,21 +126,21 @@ export function AboutPreview() {
             <div className="relative z-10 grid grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-4 md:space-y-6 mt-12">
                 <div className="p-6 md:p-8 rounded-3xl bg-card border border-border shadow-soft hover:shadow-hover transition-all duration-300">
-                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2">500+</div>
+                  <div className="stat-number text-4xl md:text-5xl font-bold text-primary mb-2">500+</div>
                   <p className="text-muted-foreground font-medium">Projects Delivered</p>
                 </div>
                 <div className="p-6 md:p-8 rounded-3xl bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
-                  <div className="text-4xl md:text-5xl font-bold mb-2">15+</div>
+                  <div className="stat-number text-4xl md:text-5xl font-bold mb-2">15+</div>
                   <p className="text-white/80 font-medium">Years Experience</p>
                 </div>
               </div>
               <div className="space-y-4 md:space-y-6">
                 <div className="p-6 md:p-8 rounded-3xl bg-card border border-border shadow-soft hover:shadow-hover transition-all duration-300">
-                  <div className="text-4xl md:text-5xl font-bold text-secondary mb-2">50+</div>
+                  <div className="stat-number text-4xl md:text-5xl font-bold text-secondary mb-2">50+</div>
                   <p className="text-muted-foreground font-medium">Expert Team</p>
                 </div>
                 <div className="p-6 md:p-8 rounded-3xl bg-card border border-border shadow-soft hover:shadow-hover transition-all duration-300">
-                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2">100%</div>
+                  <div className="stat-number text-4xl md:text-5xl font-bold text-primary mb-2">100%</div>
                   <p className="text-muted-foreground font-medium">Saudi Owned</p>
                 </div>
               </div>

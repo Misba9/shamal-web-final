@@ -6,6 +6,7 @@ import { useLenis } from '@/hooks/use-lenis';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SEO } from '@/components/SEO';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -13,6 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 type ProductCategory = 'drones' | 'payloads' | 'satellite';
 
+// ... (keep existing products array)
 interface Product {
   id: string;
   category: ProductCategory;
@@ -152,88 +154,95 @@ const Products = () => {
   const filteredProducts = products.filter((product) => product.category === activeTab);
 
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
+    <>
+      <SEO 
+        title="Products - Drones, Payloads & Satellite Imagery"
+        description="Browse our selection of enterprise drones, LiDAR sensors, and high-resolution satellite imagery available for sale or lease in Saudi Arabia."
+        canonical="/products"
+      />
+      <main className="min-h-screen bg-background">
+        <Navbar />
 
-      {/* Hero Section */}
-      <section ref={heroRef} className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 md:px-6">
-          <h1 className="animate-in text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            Our Products
-          </h1>
-          <p className="animate-in text-lg md:text-xl text-muted-foreground max-w-2xl">
-            Professional-grade drone equipment, sensors, and geospatial technology products for sale or lease
-          </p>
-        </div>
-      </section>
+        {/* Hero Section */}
+        <section ref={heroRef} className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-b from-primary/5 to-background">
+          <div className="container mx-auto px-4 md:px-6">
+            <h1 className="animate-in text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
+              Our Products
+            </h1>
+            <p className="animate-in text-lg md:text-xl text-muted-foreground max-w-2xl">
+              Professional-grade drone equipment, sensors, and geospatial technology products for sale or lease
+            </p>
+          </div>
+        </section>
 
-      {/* Products Section */}
-      <section className="pb-24 md:pb-32">
-        <div className="container mx-auto px-4 md:px-6">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProductCategory)} className="w-full">
-            <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-12 h-auto p-1">
-              <TabsTrigger 
-                value="drones" 
-                className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Drones
-              </TabsTrigger>
-              <TabsTrigger 
-                value="payloads"
-                className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Payloads
-              </TabsTrigger>
-              <TabsTrigger 
-                value="satellite"
-                className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Satellite Imagery
-              </TabsTrigger>
-            </TabsList>
+        {/* Products Section */}
+        <section className="section-padding">
+          <div className="container mx-auto px-4 md:px-6">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProductCategory)} className="w-full">
+              <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-12 h-auto p-1">
+                <TabsTrigger 
+                  value="drones" 
+                  className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  Drones
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="payloads"
+                  className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  Payloads
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="satellite"
+                  className="py-3 text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  Satellite Imagery
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value={activeTab} className="mt-0">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map((product) => (
-                  <Card 
-                    key={product.id} 
-                    className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
-                  >
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <CardContent className="p-6">
-                      <Badge className={`${product.badgeColor} text-white mb-3`}>
-                        {product.badge}
-                      </Badge>
-                      <h3 className="text-xl font-display font-bold mb-2">{product.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold">Key Features:</p>
-                        {product.features.map((feature) => (
-                          <div key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
+              <TabsContent value={activeTab} className="mt-0">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.map((product) => (
+                    <Card 
+                      key={product.id} 
+                      className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
+                      <CardContent className="p-6">
+                        <Badge className={`${product.badgeColor} text-white mb-3`}>
+                          {product.badge}
+                        </Badge>
+                        <h3 className="text-xl font-display font-bold mb-2">{product.name}</h3>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                          {product.description}
+                        </p>
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold">Key Features:</p>
+                          {product.features.map((feature) => (
+                            <div key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </section>
 
-      <Footer />
-    </main>
+        <Footer />
+      </main>
+    </>
   );
 };
 

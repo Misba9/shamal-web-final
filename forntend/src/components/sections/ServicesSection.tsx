@@ -77,7 +77,7 @@ export function ServicesSection() {
 
       <div className="container-custom relative z-10">
         {/* Section Header */}
-        <div ref={headerRef} className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+        <div ref={headerRef} className="text-center max-w-3xl mx-auto mb-12 md:mb-20 px-4">
           <span className="text-primary font-semibold text-sm uppercase tracking-widest mb-3 block">
             Our Expertise
           </span>
@@ -91,20 +91,20 @@ export function ServicesSection() {
         </div>
 
         {/* Services Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service) => (
             <Link key={service.href} to={service.href} className="group block h-full">
               <Card className="h-full card-hover border-border/60 bg-background/50 backdrop-blur-sm overflow-hidden relative">
-                <CardContent className="p-8 flex flex-col h-full relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300">
-                    <service.icon className="h-7 w-7 text-primary" />
+                <CardContent className="p-6 md:p-8 flex flex-col h-full relative z-10">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300">
+                    <service.icon className="h-6 w-6 md:h-7 md:w-7 text-primary" />
                   </div>
                   
-                  <h3 className="text-xl font-display font-bold mb-3 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg md:text-xl font-display font-bold mb-3 group-hover:text-primary transition-colors">
                     {service.title}
                   </h3>
                   
-                  <p className="text-muted-foreground leading-relaxed mb-6 flex-grow">
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 flex-grow">
                     {service.description}
                   </p>
                   
@@ -122,7 +122,7 @@ export function ServicesSection() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-12 md:mt-16">
           <Button variant="outline" size="lg" className="rounded-full px-8 border-primary/20 hover:bg-primary/5" asChild>
             <Link to="/services">
               View All Services

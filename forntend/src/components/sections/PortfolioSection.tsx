@@ -1,6 +1,10 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useIntersectionAnimation } from '@/hooks/use-intersection-animation';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const portfolioItems = [
   {
@@ -27,23 +31,52 @@ const portfolioItems = [
 ];
 
 export function PortfolioSection() {
-  const sectionRef = useIntersectionAnimation<HTMLElement>({
-    animationClass: 'animate-fade-in-up-sm',
-  });
-  const headerRef = useIntersectionAnimation<HTMLDivElement>({
-    animationClass: 'animate-fade-in-up-sm',
-    delay: 100,
-  });
-  const gridRef = useIntersectionAnimation<HTMLDivElement>({
-    animationClass: 'animate-fade-in-up-sm',
-    delay: 200,
-  });
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header Animation
+      if (headerRef.current) {
+        gsap.from(headerRef.current, {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+
+      // Grid Animation
+      if (gridRef.current) {
+        gsap.from(gridRef.current.children, {
+          y: 60,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 md:py-28 overflow-hidden bg-card/30 opacity-0">
-      <div className="container mx-auto px-4 md:px-6">
+    <section ref={sectionRef} className="relative py-20 md:py-28 overflow-hidden bg-card/30">
+      <div className="container-custom">
         {/* Section Header */}
-        <div ref={headerRef} className="text-center mb-12 md:mb-16 opacity-0">
+        <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
             Our Work
           </span>
@@ -58,7 +91,7 @@ export function PortfolioSection() {
         </div>
 
         {/* Portfolio Cards Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 opacity-0">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {portfolioItems.map((item) => (
             <Link
               key={item.id}

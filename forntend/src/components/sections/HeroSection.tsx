@@ -13,6 +13,7 @@ export function HeroSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLIFrameElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -25,6 +26,45 @@ export function HeroSection() {
           stagger: 0.15,
           ease: 'power3.out',
           delay: 0.2,
+        });
+      }
+
+      // Stats Animation & Counting
+      if (statsRef.current) {
+        // Fade in container
+        gsap.from(statsRef.current, {
+          y: 20,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 1,
+        });
+
+        // Animate numbers
+        const statItems = statsRef.current.querySelectorAll('.stat-value');
+        statItems.forEach((item) => {
+          const originalText = item.textContent || '0';
+          const match = originalText.match(/(\d+)(.*)/); // Separate number and suffix (e.g., 500 and +)
+          
+          if (match) {
+            const endValue = parseInt(match[1], 10);
+            const suffix = match[2];
+            const obj = { val: 0 };
+
+            gsap.to(obj, {
+              val: endValue,
+              duration: 2.5,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: statsRef.current,
+                start: 'top 90%',
+                once: true,
+              },
+              onUpdate: () => {
+                item.textContent = `${Math.floor(obj.val)}${suffix}`;
+              }
+            });
+          }
         });
       }
 
@@ -56,7 +96,7 @@ export function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-background"
+      className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-background"
     >
       {/* Video Background Container */}
       <div className="absolute inset-0 z-0 select-none">
@@ -98,67 +138,69 @@ export function HeroSection() {
       />
 
       {/* Content */}
-      <div
-        ref={contentRef}
-        className="relative z-30 container-custom text-center flex flex-col items-center"
-      >
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mb-8 hover:bg-white/20 transition-colors cursor-default">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-          </span>
-          <span className="text-xs md:text-sm font-medium text-white tracking-wide">
-            Saudi Arabia's Premier Drone Solutions
-          </span>
-        </div>
+      <div className="relative z-30 container-custom flex flex-col items-center justify-center h-full pt-20">
+        <div ref={contentRef} className="flex flex-col items-center text-center max-w-5xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mb-6 md:mb-8 hover:bg-white/20 transition-colors cursor-default">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+            </span>
+            <span className="text-xs md:text-sm font-medium text-white tracking-wide">
+              Saudi Arabia's Premier Drone Solutions
+            </span>
+          </div>
 
-        {/* Headline */}
-        <h1 className="text-balance text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-[1.1] mb-6 text-white drop-shadow-xl max-w-5xl">
-          Precision Drone Survey &{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
-            Geospatial Intelligence
-          </span>
-        </h1>
+          {/* Headline */}
+          <h1 className="text-balance text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-[1.1] mb-6 text-white drop-shadow-xl">
+            Precision Drone Survey &{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
+              Geospatial Intelligence
+            </span>
+          </h1>
 
-        {/* Subheadline */}
-        <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md text-balance">
-          Transforming industries with advanced aerial technology, AI-powered analytics, 
-          and comprehensive geospatial solutions across the Kingdom.
-        </p>
+          {/* Subheadline */}
+          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed drop-shadow-md text-balance px-4">
+            Transforming industries with advanced aerial technology, AI-powered analytics, 
+            and comprehensive geospatial solutions across the Kingdom.
+          </p>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-          <Button 
-            className="btn-primary-gradient h-12 px-8 text-base rounded-full w-full sm:w-auto" 
-            asChild
-          >
-            <Link to="/services">
-              Explore Services <ChevronRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-12 px-8 text-base rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white backdrop-blur-sm w-full sm:w-auto"
-          >
-            <Play className="mr-2 h-4 w-4 fill-current" />
-            Watch Demo
-          </Button>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto px-4">
+            <Button 
+              className="btn-primary-gradient h-12 px-8 text-base rounded-full w-full sm:w-auto shadow-lg shadow-primary/20" 
+              asChild
+            >
+              <Link to="/services">
+                Explore Services <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-12 px-8 text-base rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white backdrop-blur-sm w-full sm:w-auto"
+            >
+              <Play className="mr-2 h-4 w-4 fill-current" />
+              Watch Demo
+            </Button>
+          </div>
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12 mt-16 md:mt-24 w-full max-w-4xl bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
+        <div 
+          ref={statsRef}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-12 md:mt-20 w-full max-w-4xl bg-white/5 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/10 shadow-2xl mx-4"
+        >
           {[
             { value: '500+', label: 'Projects Delivered' },
             { value: '15+', label: 'Years Experience' },
             { value: '50+', label: 'Expert Team' },
             { value: '100%', label: 'Saudi Owned' },
           ].map((stat, index) => (
-            <div key={index} className="text-center group">
-              <div className="text-2xl md:text-3xl font-display font-bold text-white mb-1 group-hover:scale-110 transition-transform duration-300">
+            <div key={index} className="text-center group p-2">
+              <div className="stat-value text-2xl md:text-3xl font-display font-bold text-white mb-1 group-hover:scale-110 transition-transform duration-300">
                 {stat.value}
               </div>
-              <div className="text-xs md:text-sm text-white/70 uppercase tracking-wider font-medium">
+              <div className="text-[10px] md:text-xs text-white/70 uppercase tracking-wider font-medium">
                 {stat.label}
               </div>
             </div>
@@ -169,10 +211,10 @@ export function HeroSection() {
       {/* Scroll Indicator */}
       <button
         onClick={scrollToContent}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors group z-30"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors group z-30"
         aria-label="Scroll down"
       >
-        <span className="text-[10px] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+        <span className="text-[10px] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0 hidden md:block">
           Discover
         </span>
         <ArrowDown className="h-5 w-5 animate-bounce" />

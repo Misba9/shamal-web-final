@@ -18,11 +18,13 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { useLenis } from '@/hooks/use-lenis';
+import { SEO } from '@/components/SEO';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ... (keep existing constants: categories, projects, getCategoryIcon)
 const categories = [
   { id: 'all', label: 'All Projects' },
   { id: 'infrastructure', label: 'Infrastructure' },
@@ -287,163 +289,170 @@ const Portfolio = () => {
   }, [activeCategory]);
 
   return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
+    <>
+      <SEO 
+        title="Portfolio - Featured Drone Survey Projects in Saudi Arabia"
+        description="Explore our portfolio of major infrastructure, construction, and environmental projects across Saudi Arabia, including NEOM, Red Sea Global, and Riyadh Metro."
+        canonical="/portfolio"
+      />
+      <main className="min-h-screen bg-background">
+        <Navbar />
 
-      {/* Hero Section */}
-      <section ref={heroRef} className="pt-32 pb-16 md:pt-40 md:pb-20">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <span className="animate-in inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
-            Our Portfolio
-          </span>
-          <h1 className="animate-in text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            Projects That <span className="text-gradient-primary">Define Excellence</span>
-          </h1>
-          <p className="animate-in text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-            Explore our portfolio of precision aerial surveys, engineering data, and technical deliverables 
-            that have powered Saudi Arabia's most ambitious infrastructure and development projects.
-          </p>
+        {/* Hero Section */}
+        <section ref={heroRef} className="pt-32 pb-16 md:pt-40 md:pb-20">
+          <div className="container mx-auto px-4 md:px-6 text-center">
+            <span className="animate-in inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
+              Our Portfolio
+            </span>
+            <h1 className="animate-in text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
+              Projects That <span className="text-gradient-primary">Define Excellence</span>
+            </h1>
+            <p className="animate-in text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
+              Explore our portfolio of precision aerial surveys, engineering data, and technical deliverables 
+              that have powered Saudi Arabia's most ambitious infrastructure and development projects.
+            </p>
 
-          {/* Stats */}
-          <div className="animate-in grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border">
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-display font-bold text-primary">500+</div>
-              <div className="text-sm text-muted-foreground">Projects</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-display font-bold text-primary">50K+</div>
-              <div className="text-sm text-muted-foreground">km² Mapped</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-display font-bold text-primary">100+</div>
-              <div className="text-sm text-muted-foreground">Clients</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-display font-bold text-primary">99%</div>
-              <div className="text-sm text-muted-foreground">Accuracy</div>
+            {/* Stats */}
+            <div className="animate-in grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border">
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-display font-bold text-primary">500+</div>
+                <div className="text-sm text-muted-foreground">Projects</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-display font-bold text-primary">50K+</div>
+                <div className="text-sm text-muted-foreground">km² Mapped</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-display font-bold text-primary">100+</div>
+                <div className="text-sm text-muted-foreground">Clients</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-display font-bold text-primary">99%</div>
+                <div className="text-sm text-muted-foreground">Accuracy</div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Filter Tabs */}
-      <section className="pb-8">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex justify-center">
-            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full max-w-4xl">
-              <TabsList className="grid grid-cols-3 md:grid-cols-6 h-auto p-1 bg-card border border-border">
-                {categories.map((cat) => (
-                  <TabsTrigger 
-                    key={cat.id} 
-                    value={cat.id}
-                    className="text-xs md:text-sm py-2 px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    {cat.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+        {/* Filter Tabs */}
+        <section className="pb-8">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="flex justify-center">
+              <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full max-w-4xl">
+                <TabsList className="grid grid-cols-3 md:grid-cols-6 h-auto p-1 bg-card border border-border">
+                  {categories.map((cat) => (
+                    <TabsTrigger 
+                      key={cat.id} 
+                      value={cat.id}
+                      className="text-xs md:text-sm py-2 px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      {cat.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Projects Grid */}
-      <section className="pb-24 md:pb-32">
-        <div className="container mx-auto px-4 md:px-6">
-          <div
-            ref={gridRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {filteredProjects.map((project) => {
-              const CategoryIcon = getCategoryIcon(project.category);
-              return (
-                <Card key={project.id} variant="service" className="overflow-hidden group h-full">
-                  <div className="aspect-video overflow-hidden relative">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-flex items-center gap-1.5 bg-primary/90 text-primary-foreground text-xs font-medium px-3 py-1.5 rounded-full">
-                        <CategoryIcon className="h-3 w-3" />
-                        {categories.find(c => c.id === project.category)?.label}
-                      </span>
-                    </div>
-                  </div>
-                  <CardContent className="p-6 flex flex-col h-[calc(100%-33.33%)]">
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {project.location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {project.date}
-                      </span>
-                    </div>
-                    <h3 className="font-display font-bold text-xl mb-2 group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4 flex-grow">
-                      {project.description}
-                    </p>
-                    
-                    {/* Key Metrics */}
-                    <div className="grid grid-cols-2 gap-2 mb-4">
-                      <div className="bg-muted/50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-muted-foreground">Area</div>
-                        <div className="text-sm font-semibold">{project.metrics.area}</div>
-                      </div>
-                      <div className="bg-muted/50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-muted-foreground">Accuracy</div>
-                        <div className="text-sm font-semibold">{project.metrics.accuracy}</div>
+        {/* Projects Grid */}
+        <section className="section-padding">
+          <div className="container mx-auto px-4 md:px-6">
+            <div
+              ref={gridRef}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredProjects.map((project) => {
+                const CategoryIcon = getCategoryIcon(project.category);
+                return (
+                  <Card key={project.id} variant="service" className="overflow-hidden group h-full">
+                    <div className="aspect-video overflow-hidden relative">
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <span className="inline-flex items-center gap-1.5 bg-primary/90 text-primary-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+                          <CategoryIcon className="h-3 w-3" />
+                          {categories.find(c => c.id === project.category)?.label}
+                        </span>
                       </div>
                     </div>
+                    <CardContent className="p-6 flex flex-col h-[calc(100%-33.33%)]">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {project.location}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {project.date}
+                        </span>
+                      </div>
+                      <h3 className="font-display font-bold text-xl mb-2 group-hover:text-primary transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4 flex-grow">
+                        {project.description}
+                      </p>
+                      
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        <div className="bg-muted/50 rounded-lg p-2 text-center">
+                          <div className="text-xs text-muted-foreground">Area</div>
+                          <div className="text-sm font-semibold">{project.metrics.area}</div>
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-2 text-center">
+                          <div className="text-xs text-muted-foreground">Accuracy</div>
+                          <div className="text-sm font-semibold">{project.metrics.accuracy}</div>
+                        </div>
+                      </div>
 
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" asChild>
-                      <Link to={`/portfolio/${project.slug}`}>
-                        View Project Details
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-16">
-              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">No projects found</h3>
-              <p className="text-muted-foreground">Try selecting a different category</p>
+                      <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" asChild>
+                        <Link to={`/portfolio/${project.slug}`}>
+                          View Project Details
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-card/50 border-y border-border">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            Have a Similar Project?
-          </h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Let's discuss how Shamal Technologies can deliver precision aerial data 
-            for your infrastructure, construction, or development project.
-          </p>
-          <Button variant="hero" size="xl" asChild>
-            <Link to="/contact">
-              Start Your Project
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+            {filteredProjects.length === 0 && (
+              <div className="text-center py-16">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">No projects found</h3>
+                <p className="text-muted-foreground">Try selecting a different category</p>
+              </div>
+            )}
+          </div>
+        </section>
 
-      <Footer />
-    </main>
+        {/* CTA Section */}
+        <section className="section-padding bg-card/50 border-y border-border">
+          <div className="container mx-auto px-4 md:px-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Have a Similar Project?
+            </h2>
+            <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
+              Let's discuss how Shamal Technologies can deliver precision aerial data 
+              for your infrastructure, construction, or development project.
+            </p>
+            <Button variant="hero" size="xl" asChild>
+              <Link to="/contact">
+                Start Your Project
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        <Footer />
+      </main>
+    </>
   );
 };
 

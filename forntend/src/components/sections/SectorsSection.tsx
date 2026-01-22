@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { 
   Building, 
   Train, 
@@ -13,7 +14,10 @@ import {
   Shield,
   Map
 } from 'lucide-react';
-import { useIntersectionAnimation } from '@/hooks/use-intersection-animation';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const sectors = [
   { icon: Landmark, title: 'Government' },
@@ -34,18 +38,33 @@ const sectors = [
 export function SectorsSection() {
   // Duplicate sectors array for seamless loop
   const duplicatedSectors = [...sectors, ...sectors];
-  const sectionRef = useIntersectionAnimation<HTMLElement>({
-    animationClass: 'animate-fade-in-up-sm',
-  });
-  const headerRef = useIntersectionAnimation<HTMLDivElement>({
-    animationClass: 'animate-fade-in-up-sm',
-    delay: 100,
-  });
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.from(headerRef.current, {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-16 md:py-24 overflow-hidden bg-card/50 opacity-0">
+    <section ref={sectionRef} className="relative py-16 md:py-24 overflow-hidden bg-card/50">
       {/* Section Header */}
-      <div ref={headerRef} className="container mx-auto px-4 md:px-6 mb-12 opacity-0">
+      <div ref={headerRef} className="container-custom mb-12">
         <div className="text-center">
           <span className="inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
             Industries
@@ -64,19 +83,19 @@ export function SectorsSection() {
       {/* Infinite Sliding Icons */}
       <div className="relative w-full overflow-hidden group">
         {/* Gradient masks for smooth edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-card/50 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-card/50 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-r from-card/50 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-l from-card/50 to-transparent z-10 pointer-events-none" />
         
         {/* Sliding container */}
-        <div className="flex animate-infinite-scroll group-hover:[animation-play-state:paused]">
+        <div className="flex animate-infinite-scroll group-hover:[animation-play-state:paused] w-max">
           {duplicatedSectors.map((sector, index) => (
             <div
               key={`${sector.title}-${index}`}
-              className="flex-shrink-0 mx-4 md:mx-8"
+              className="flex-shrink-0 mx-3 md:mx-6"
             >
-              <div className="flex flex-col items-center gap-3 p-4 md:p-6 rounded-2xl bg-background/50 border border-border/50 hover:border-primary/30 transition-all duration-300 min-w-[100px] md:min-w-[140px] hover:scale-[1.02] hover:shadow-md">
-                <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <sector.icon className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+              <div className="flex flex-col items-center gap-3 p-4 md:p-6 rounded-2xl bg-background/50 border border-border/50 hover:border-primary/30 transition-all duration-300 w-[120px] md:w-[160px] hover:scale-[1.02] hover:shadow-md">
+                <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <sector.icon className="h-5 w-5 md:h-8 md:w-8 text-primary" />
                 </div>
                 <span className="text-xs md:text-sm font-medium text-foreground/80 text-center whitespace-nowrap">
                   {sector.title}
