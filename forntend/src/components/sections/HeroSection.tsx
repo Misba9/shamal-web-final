@@ -1,38 +1,46 @@
 import { useEffect, useRef } from 'react';
-import { ArrowDown, Play } from 'lucide-react';
+import { ArrowDown, Play, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import patternOverlay from '@/assets/pattern-overlay.png';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function HeroSection() {
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Animate hero content
-      gsap.from(contentRef.current?.children || [], {
-        y: 60,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.15,
-        ease: 'power3.out',
-        delay: 0.3,
-      });
+      // Fade in content
+      if (contentRef.current) {
+        gsap.from(contentRef.current.children, {
+          y: 30,
+          opacity: 0,
+          duration: 1,
+          stagger: 0.15,
+          ease: 'power3.out',
+          delay: 0.2,
+        });
+      }
 
       // Parallax effect on scroll
-      gsap.to(overlayRef.current, {
-        y: '30%',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
-      });
+      if (overlayRef.current && heroRef.current) {
+        gsap.to(overlayRef.current, {
+          y: '20%',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
     }, heroRef);
 
     return () => ctx.revert();
@@ -40,7 +48,7 @@ export function HeroSection() {
 
   const scrollToContent = () => {
     window.scrollTo({
-      top: window.innerHeight,
+      top: window.innerHeight - 80,
       behavior: 'smooth',
     });
   };
@@ -48,36 +56,40 @@ export function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden"
+      className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-background"
     >
-      {/* Background Video */}
-      <div className="absolute inset-0">
+      {/* Video Background Container */}
+      <div className="absolute inset-0 z-0 select-none">
+        <div className="absolute inset-0 bg-background/20 z-10" /> {/* Slight dim */}
         <iframe
-          src="https://www.youtube.com/embed/lXcJZBKMRTo?autoplay=1&mute=1&loop=1&playlist=lXcJZBKMRTo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
-          title="Shamal Technologies"
-          className="w-full h-full object-cover scale-150 pointer-events-none"
+          ref={videoRef}
+          src="https://www.youtube.com/embed/lXcJZBKMRTo?autoplay=1&mute=1&loop=1&playlist=lXcJZBKMRTo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+          title="Shamal Technologies Hero Video"
+          className="w-full h-full object-cover scale-[1.35] pointer-events-none opacity-90"
           style={{ 
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%) scale(1.5)',
-            width: '177.77777778vh',
-            minWidth: '100%',
-            minHeight: '56.25vw',
-            height: '100vh'
+            transform: 'translate(-50%, -50%) scale(1.35)',
+            width: '100vw',
+            height: '100vh',
+            minWidth: '177.77vh', 
+            minHeight: '56.25vw'
           }}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
-        {/* Gradient Overlay - adjusted for video */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/50 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/60 via-primary/30 to-transparent" />
+        
+        {/* Advanced Gradient Overlays for Readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/20 to-background z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80 z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)] z-10" />
       </div>
 
-      {/* Tech Pattern Overlay */}
+      {/* Tech Pattern */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 opacity-[0.07] mix-blend-screen pointer-events-none"
+        className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none z-20"
         style={{
           backgroundImage: `url(${patternOverlay})`,
           backgroundSize: '600px',
@@ -85,60 +97,68 @@ export function HeroSection() {
         }}
       />
 
-      {/* Animated scan line */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent animate-scan-line" />
-      </div>
-
       {/* Content */}
       <div
         ref={contentRef}
-        className="relative z-10 container mx-auto px-4 md:px-6 text-center"
+        className="relative z-30 container-custom text-center flex flex-col items-center"
       >
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/90 border border-border shadow-lg mb-8">
-          <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          <span className="text-sm font-medium text-primary">
-            Saudi Arabia's Leading Drone Solutions
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg mb-8 hover:bg-white/20 transition-colors cursor-default">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+          </span>
+          <span className="text-xs md:text-sm font-medium text-white tracking-wide">
+            Saudi Arabia's Premier Drone Solutions
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-[1.1] mb-6 max-w-5xl mx-auto text-primary-foreground drop-shadow-lg">
+        <h1 className="text-balance text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-[1.1] mb-6 text-white drop-shadow-xl max-w-5xl">
           Precision Drone Survey &{' '}
-          <span className="text-secondary-foreground">Geospatial Intelligence</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
+            Geospatial Intelligence
+          </span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-lg md:text-xl text-primary-foreground/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md">
+        <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md text-balance">
           Transforming industries with advanced aerial technology, AI-powered analytics, 
           and comprehensive geospatial solutions across the Kingdom.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button variant="hero" size="xl" asChild>
-            <Link to="/services">Explore Services</Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          <Button 
+            className="btn-primary-gradient h-12 px-8 text-base rounded-full w-full sm:w-auto" 
+            asChild
+          >
+            <Link to="/services">
+              Explore Services <ChevronRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
-          <Button variant="heroOutline" size="xl" className="gap-3">
-            <Play className="h-5 w-5" />
+          <Button 
+            variant="outline" 
+            className="h-12 px-8 text-base rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white backdrop-blur-sm w-full sm:w-auto"
+          >
+            <Play className="mr-2 h-4 w-4 fill-current" />
             Watch Demo
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 md:mt-24 max-w-3xl mx-auto bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border shadow-lg">
+        {/* Stats Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12 mt-16 md:mt-24 w-full max-w-4xl bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
           {[
-            { value: '500+', label: 'Projects Completed' },
+            { value: '500+', label: 'Projects Delivered' },
             { value: '15+', label: 'Years Experience' },
             { value: '50+', label: 'Expert Team' },
-            { value: '100%', label: 'Client Satisfaction' },
+            { value: '100%', label: 'Saudi Owned' },
           ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-2xl md:text-3xl font-display font-bold text-primary mb-1">
+            <div key={index} className="text-center group">
+              <div className="text-2xl md:text-3xl font-display font-bold text-white mb-1 group-hover:scale-110 transition-transform duration-300">
                 {stat.value}
               </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
+              <div className="text-xs md:text-sm text-white/70 uppercase tracking-wider font-medium">
                 {stat.label}
               </div>
             </div>
@@ -149,11 +169,13 @@ export function HeroSection() {
       {/* Scroll Indicator */}
       <button
         onClick={scrollToContent}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
-        aria-label="Scroll to content"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors group z-30"
+        aria-label="Scroll down"
       >
-        <span className="text-xs uppercase tracking-widest">Scroll</span>
-        <ArrowDown className="h-4 w-4 animate-bounce" />
+        <span className="text-[10px] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+          Discover
+        </span>
+        <ArrowDown className="h-5 w-5 animate-bounce" />
       </button>
     </section>
   );
