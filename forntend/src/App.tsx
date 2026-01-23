@@ -10,7 +10,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import Products from "./pages/Products";
-import Portfolio from "./pages/Portfolio";
+import Projects from "./pages/Projects";
 import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
@@ -31,8 +31,8 @@ const AnimatedRoutes = () => {
           <Route path="/services" element={<Services />} />
           <Route path="/services/:slug" element={<Services />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/portfolio/:slug" element={<Portfolio />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<Projects />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Blog />} />
           <Route path="/careers" element={<Careers />} />

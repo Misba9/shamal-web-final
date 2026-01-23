@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { postNewsletter } from '@/lib/api';
 import logoPrimary from '@/assets/logo-primary.svg';
 
 // Custom icons
@@ -50,14 +50,18 @@ export function Footer() {
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) return;
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSuccess(true);
-    setEmail('');
-    setIsSubmitting(false);
-    setTimeout(() => setIsSuccess(false), 3000);
+    try {
+      await postNewsletter(email.trim());
+      setIsSuccess(true);
+      setEmail('');
+      setTimeout(() => setIsSuccess(false), 4000);
+    } catch {
+      setIsSuccess(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Send, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,7 @@ import { Footer } from '@/components/layout/Footer';
 import { useLenis } from '@/hooks/use-lenis';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { postContact } from '@/lib/api';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -61,20 +62,25 @@ const Contact = () => {
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+    const name = (form.elements.namedItem('name') as HTMLInputElement)?.value?.trim();
+    const email = (form.elements.namedItem('email') as HTMLInputElement)?.value?.trim();
+    const phone = (form.elements.namedItem('phone') as HTMLInputElement)?.value?.trim() || undefined;
+    const message = (form.elements.namedItem('message') as HTMLInputElement | HTMLTextAreaElement)?.value?.trim();
+    if (!name || !email || !message) return;
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you as soon as possible.",
-    });
-    
-    setIsSubmitting(false);
-    formRef.current?.reset();
+    try {
+      await postContact({ name, email, phone, message });
+      toast({ title: 'Message Sent!', description: "We'll get back to you as soon as possible." });
+      form.reset();
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to send. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,31 +126,8 @@ const Contact = () => {
                       </label>
                       <Input
                         id="name"
+                        name="name"
                         placeholder="John Doe"
-                        required
-                        className="bg-card"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="company" className="text-sm font-medium">
-                        Company
-                      </label>
-                      <Input
-                        id="company"
-                        placeholder="Your Company"
-                        className="bg-card"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">
-                        Email
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="john@example.com"
                         required
                         className="bg-card"
                       />
@@ -155,6 +138,7 @@ const Contact = () => {
                       </label>
                       <Input
                         id="phone"
+                        name="phone"
                         type="tel"
                         placeholder="+966 XX XXX XXXX"
                         className="bg-card"
@@ -162,12 +146,15 @@ const Contact = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="service" className="text-sm font-medium">
-                      Service of Interest
+                    <label htmlFor="email" className="text-sm font-medium">
+                      Email
                     </label>
                     <Input
-                      id="service"
-                      placeholder="e.g., Aerial Survey, Construction Monitoring"
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      required
                       className="bg-card"
                     />
                   </div>
@@ -177,6 +164,7 @@ const Contact = () => {
                     </label>
                     <Textarea
                       id="message"
+                      name="message"
                       placeholder="Tell us about your project..."
                       rows={5}
                       required

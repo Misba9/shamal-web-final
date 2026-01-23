@@ -52,8 +52,8 @@ export function BlogCardSkeleton() {
   );
 }
 
-// Portfolio Card Skeleton
-export function PortfolioCardSkeleton() {
+// Project Card Skeleton
+export function ProjectCardSkeleton() {
   return (
     <div className="h-full bg-card rounded-2xl border border-border overflow-hidden">
       <Skeleton className="aspect-[3/2] w-full" />
@@ -66,5 +66,8 @@ export function PortfolioCardSkeleton() {
     </div>
   );
 }
+
+// Legacy alias for backward compatibility
+export const PortfolioCardSkeleton = ProjectCardSkeleton;
 
 export { Skeleton };

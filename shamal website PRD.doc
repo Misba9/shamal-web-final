@@ -1,0 +1,1418 @@
+# Product Requirements Document (PRD)
+## Shamal Technologies Website - Next.js v16.1.0 + PayloadCMS
+
+**Version:** 1.0  
+**Date:** 2025-01-27  
+**Project:** Full Professional Website Upgrade for Shamal Technologies  
+**Domain:** shamal.sa  
+**Company:** Shamal Technologies - Drone Survey & Geospatial Solutions, Saudi Arabia
+
+---
+
+## 1. Executive Summary
+
+### 1.1 Project Overview
+Build a complete, production-ready, fully responsive, SEO-optimized website for Shamal Technologies using Next.js v16.1.0, PayloadCMS, ShadCN UI, and MongoDB. The website will serve as the primary digital presence for the company's drone survey and geospatial services in Saudi Arabia.
+
+### 1.2 Objectives
+- Create a modern, professional website with excellent UI/UX
+- Implement a headless CMS for content management
+- Achieve high SEO rankings with structured data and optimization
+- Provide dynamic content management for Products, Blog, Portfolio, and Services
+- Ensure fast loading times and excellent performance
+- Maintain flexibility for future service provider changes
+
+### 1.3 Target Audience
+- B2B clients in construction, infrastructure, mining, agriculture, and environmental sectors
+- Government entities and large enterprises in Saudi Arabia
+- Potential partners and stakeholders
+
+---
+
+## 2. Technical Architecture
+
+### 2.1 Tech Stack
+
+#### Frontend
+- **Framework:** Next.js v16.1.0
+  - App Router architecture
+  - Server Components and Client Components
+  - Static Site Generation (SSG) where applicable
+  - Incremental Static Regeneration (ISR) for dynamic content
+- **UI Framework:** ShadCN UI
+  - Component library built on Radix UI
+  - Tailwind CSS for styling
+- **Animations:**
+  - Lenis for smooth scrolling
+  - GSAP for reveal animations and transitions
+- **Styling:** Tailwind CSS
+- **Language:** TypeScript
+
+#### Backend/CMS
+- **CMS:** PayloadCMS (Latest version)
+  - Headless CMS architecture
+  - REST and GraphQL APIs
+  - Admin panel for content management
+- **Database:** MongoDB (Local setup)
+  - Connection string configurable via environment variables
+- **File Storage:** Local filesystem (configurable for cloud storage)
+
+#### Integrations
+- **Newsletter:** Generic newsletter service integration
+  - Abstraction layer for easy provider switching
+  - Initial implementation: Mailchimp-compatible
+  - Environment variable configuration
+- **Maps:** Google Maps Embed API (iframe)
+
+### 2.2 Project Structure
+
+```
+
+---
+
+## 3. Content Management System (PayloadCMS)
+
+### 3.1 Collections Structure
+
+#### 3.1.1 Services Collection
+**Purpose:** Manage individual service pages (CMS-managed)
+
+**Fields:**
+- `title` (Text, required) - Service name
+- `slug` (Text, required, unique) - URL slug (e.g., "aerial-survey")
+- `heroImage` (Upload, required) - Hero section image
+- `heroTitle` (Text, required) - Hero heading
+- `heroDescription` (Textarea) - Hero description
+- `benefits` (Array) - Service benefits
+  - `title` (Text)
+  - `description` (Textarea)
+  - `icon` (Upload, optional)
+- `applications` (Array) - Use cases/applications
+  - `title` (Text)
+  - `description` (Textarea)
+  - `image` (Upload, optional)
+- `technologies` (Array) - Technologies used
+  - `name` (Text)
+  - `description` (Textarea, optional)
+  - `icon` (Upload, optional)
+- `portfolioExamples` (Relationship) - Related portfolio items
+- `faqs` (Array) - Frequently asked questions
+  - `question` (Text)
+  - `answer` (RichText)
+- `ctaTitle` (Text) - CTA section heading
+- `ctaDescription` (Textarea) - CTA section description
+- `ctaButtonText` (Text) - CTA button label
+- `seo` (Group) - SEO fields
+  - `metaTitle` (Text)
+  - `metaDescription` (Textarea)
+  - `keywords` (Text)
+  - `ogImage` (Upload)
+
+**Access Control:**
+- Read: Public
+- Create/Update/Delete: Admin, Designer only
+
+#### 3.1.2 Products Collection
+**Purpose:** Manage product listings
+
+**Fields:**
+- `name` (Text, required)
+- `slug` (Text, required, unique)
+- `images` (Upload, multiple) - Product images
+- `description` (RichText) - Product description
+- `specifications` (JSON) - Product specs (flexible structure)
+- `category` (Select) - Product category
+- `featured` (Checkbox) - Featured product flag
+- `ctaText` (Text) - CTA button text (default: "Request Quote")
+- `seo` (Group) - SEO fields
+
+**Access Control:**
+- Read: Public
+- Create/Update/Delete: Admin, Author, Designer only
+
+#### 3.1.3 Blog Collection
+**Purpose:** Manage blog posts
+
+**Fields:**
+- `headline` (Text, required) - Blog title
+- `slug` (Text, required, unique)
+- `date` (Date, required) - Publication date
+- `author` (Text) - Author name
+- `media` (Upload, multiple) - Images/videos (carousel support)
+  - Support for images and video files
+- `description` (Textarea, max 5000 chars) - Blog description/excerpt
+- `content` (RichText) - Full blog content
+- `featuredImage` (Upload) - Featured image for listings
+- `category` (Select, optional) - Blog category
+- `tags` (Text, multiple) - Blog tags
+- `seo` (Group) - SEO fields
+  - `metaTitle`
+  - `metaDescription`
+  - `keywords`
+  - `ogImage`
+
+**Access Control:**
+- Read: Public
+- Create/Update/Delete: Admin, Author only
+
+#### 3.1.4 Portfolio Collection
+**Purpose:** Manage portfolio items/projects
+
+**Fields:**
+- `title` (Text, required)
+- `slug` (Text, required, unique)
+- `client` (Text, optional) - Client name
+- `sector` (Select) - Related sector
+- `services` (Relationship, multiple) - Related services
+- `images` (Upload, multiple) - Project images
+- `description` (RichText) - Project description
+- `useCases` (Array) - Use cases addressed
+- `solutionsDelivered` (Array) - Solutions provided
+- `completionDate` (Date, optional)
+- `featured` (Checkbox) - Featured portfolio item
+- `seo` (Group) - SEO fields
+
+**Access Control:**
+- Read: Public
+- Create/Update/Delete: Admin only
+
+#### 3.1.5 Contact Submissions Collection
+**Purpose:** Store contact form submissions
+
+**Fields:**
+- `name` (Text, required)
+- `email` (Email, required)
+- `phone` (Text, optional)
+- `company` (Text, optional)
+- `subject` (Text, optional)
+- `services` (Relationship, multiple) - Selected services (checkboxes on form)
+  - Relationship to Services Collection
+  - Users can select multiple services
+- `message` (Textarea, required)
+- `submittedAt` (Date, auto) - Submission timestamp
+- `status` (Select) - Status: "new", "read", "replied", "archived"
+
+**Access Control:**
+- Create: Public (via API)
+- Read/Update/Delete: Admin, Marketing only
+
+#### 3.1.6 Newsletter Subscriptions Collection
+**Purpose:** Store newsletter subscriptions (backup to external service)
+
+**Fields:**
+- `email` (Email, required, unique)
+- `subscribedAt` (Date, auto)
+- `status` (Select) - "active", "unsubscribed"
+- `source` (Text) - Subscription source
+
+**Access Control:**
+- Create: Public (via API)
+- Read/Update/Delete: Admin, Marketing only
+
+#### 3.1.7 SEO Keywords Collection
+**Purpose:** Manage SEO keywords dynamically from admin panel
+
+**Fields:**
+- `keyword` (Text, required, unique) - SEO keyword/phrase
+- `category` (Select) - Keyword category
+  - Options: "primary", "secondary", "long-tail", "service-specific", "sector-specific"
+- `description` (Textarea, optional) - Keyword description/usage notes
+- `relatedPages` (Relationship, multiple) - Related pages/services
+- `priority` (Number) - Keyword priority (1-10, higher = more important)
+- `active` (Checkbox) - Active/inactive flag
+
+**Access Control:**
+- Read: Public
+- Create/Update/Delete: Admin, Marketing only
+
+### 3.2 Globals
+
+#### 3.2.1 Site Settings
+**Purpose:** Global site configuration
+
+**Fields:**
+- `siteName` (Text) - "Shamal Technologies"
+- `siteDescription` (Textarea) - Site meta description
+- `logo` (Upload) - Site logo
+- `favicon` (Upload) - Favicon
+- `contactInfo` (Group)
+  - `phone` (Text) - "+966 (0) 53 030 1370"
+  - `email` (Email) - "hello@shamal.sa"
+  - `address` (Textarea) - Full address
+  - `mapEmbedUrl` (Text) - Google Maps embed URL
+  - `mapLink` (Text) - Google Maps link
+- `socialMedia` (Group, optional)
+  - Social media links
+- `footerContent` (RichText, optional) - Footer content
+
+**Access Control:**
+- Read: Public
+- Update: Admin, Designer only
+
+#### 3.2.2 Homepage Content
+**Purpose:** Manage homepage sections
+
+**Fields:**
+- `hero` (Group)
+  - `title` (Text)
+  - `subtitle` (Textarea)
+  - `ctaText` (Text)
+  - `backgroundImage` (Upload)
+- `servicesOverview` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+- `sectors` (Group)
+  - `title` (Text) - "SECTORS WE SERVE"
+  - `description` (Textarea)
+- `aboutPreview` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+  - `ctaText` (Text)
+- `portfolioPreview` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+  - `ctaText` (Text)
+- `blogPreview` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+  - `ctaText` (Text)
+- `contactCTA` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+  - `ctaText` (Text)
+
+**Access Control:**
+- Read: Public
+- Update: Admin, Designer only
+
+#### 3.2.3 About Page Content
+**Purpose:** Manage About page content
+
+**Fields:**
+- `hero` (Group)
+  - `title` (Text)
+  - `description` (Textarea)
+  - `image` (Upload)
+- `vision` (Group)
+  - `title` (Text)
+  - `content` (RichText)
+- `mission` (Group)
+  - `title` (Text)
+  - `content` (RichText)
+- `certifications` (Array) - Certifications list
+  - `name` (Text)
+  - `image` (Upload)
+  - `description` (Textarea, optional)
+- `achievements` (Array) - Achievements/milestones
+  - `title` (Text)
+  - `description` (Textarea)
+  - `icon` (Upload, optional)
+- `timeline` (Array) - Company timeline
+  - `year` (Number)
+  - `title` (Text)
+  - `description` (Textarea)
+- `leadership` (Array) - Leadership team
+  - `name` (Text)
+  - `position` (Text)
+  - `bio` (Textarea)
+  - `image` (Upload)
+- `clients` (Array) - Client logos/testimonials
+  - `name` (Text)
+  - `logo` (Upload)
+  - `testimonial` (Textarea, optional)
+- `strengths` (Array) - Company strengths
+  - `title` (Text)
+  - `description` (Textarea)
+  - `icon` (Upload, optional)
+
+**Access Control:**
+- Read: Public
+- Update: Admin only
+
+#### 3.2.4 Sectors Content
+**Purpose:** Manage sectors section content
+
+**Fields:**
+- `sectors` (Array) - One entry per sector
+  - `name` (Text) - Sector name
+  - `slug` (Text) - URL-friendly identifier
+  - `description` (Textarea)
+  - `image` (Upload)
+  - `useCases` (Array) - Use cases
+    - `title` (Text)
+    - `description` (Textarea)
+  - `solutionsDelivered` (Array) - Solutions
+    - `title` (Text)
+    - `description` (Textarea)
+
+**Sectors List:**
+- Government
+- Transportation
+- Mining
+- Construction
+- Real Estate
+- Education
+- Oil & Gas
+- Heritage
+- Marine
+- Agriculture
+- Utilities
+
+**Access Control:**
+- Read: Public
+- Update: Admin, Designer only
+
+#### 3.2.5 SEO Settings Global
+**Purpose:** Manage global SEO settings and keywords
+
+**Fields:**
+- `primaryKeywords` (Text, multiple) - Primary SEO keywords
+  - Default: "drone survey Saudi Arabia", "geospatial solutions KSA", "drone services Jeddah"
+- `secondaryKeywords` (Text, multiple) - Secondary SEO keywords
+- `longTailKeywords` (Text, multiple) - Long-tail keywords
+- `serviceKeywords` (JSON) - Service-specific keywords mapping
+- `sectorKeywords` (JSON) - Sector-specific keywords mapping
+- `metaDescriptionTemplate` (Textarea) - Template for meta descriptions
+- `ogImageDefault` (Upload) - Default Open Graph image
+- `twitterCardDefault` (Upload) - Default Twitter Card image
+
+**Access Control:**
+- Read: Public
+- Update: Admin, Marketing only
+
+### 3.3 User Roles & Access Control
+
+#### 3.3.1 Role Definitions
+
+**Admin Role:**
+- Full access to all collections and globals
+- Can create, read, update, and delete all content
+- Can manage users and roles
+- Can configure system settings
+- Access to all PayloadCMS admin features
+
+**Author Role:**
+- Can manage Blog collection (create, update, delete)
+- Can manage Portfolio collection (create, update, delete)
+- Read-only access to other collections
+- Cannot manage users, roles, or system settings
+
+**Designer Role:**
+- Can update website content (globals):
+  - Homepage Content
+  - About Page Content
+  - Sectors Content
+  - Site Settings (limited fields)
+- Can manage Products collection
+- Can manage Services collection
+- Read-only access to Blog, Portfolio, Contact Submissions
+- Cannot manage SEO settings or Newsletter
+- Cannot manage users or roles
+
+**Marketing Role:**
+- Can manage SEO-related content:
+  - SEO Keywords Collection (full access)
+  - SEO Settings Global (full access)
+  - SEO fields in all collections (meta titles, descriptions, keywords, OG images)
+- Can manage Newsletter Subscriptions
+- Can read Contact Submissions
+- Can update Contact Submissions status
+- Can manage Newsletter service integration settings
+- Read-only access to other content
+- Cannot manage users or roles
+
+#### 3.3.2 Access Control Matrix
+
+| Collection/Global | Admin | Author | Designer | Marketing |
+|-------------------|-------|--------|----------|-----------|
+| Services | Full | Read | Full | Read (SEO fields: Update) |
+| Products | Full | Read | Full | Read (SEO fields: Update) |
+| Blog | Full | Full | Read | Read (SEO fields: Update) |
+| Portfolio | Full | Full | Read | Read (SEO fields: Update) |
+| Contact Submissions | Full | Read | Read | Read/Update |
+| Newsletter Subscriptions | Full | Read | Read | Full |
+| SEO Keywords | Full | Read | Read | Full |
+| Site Settings | Full | Read | Limited | Read |
+| Homepage Content | Full | Read | Full | Read (SEO fields: Update) |
+| About Page Content | Full | Read | Full | Read (SEO fields: Update) |
+| Sectors Content | Full | Read | Full | Read (SEO fields: Update) |
+| SEO Settings | Full | Read | Read | Full |
+| Users | Full | - | - | - |
+
+**Legend:**
+- Full: Create, Read, Update, Delete
+- Read: Read-only access
+- Limited: Update specific fields only
+- -: No access
+
+#### 3.3.3 Implementation Notes
+- PayloadCMS access control hooks will be implemented for each collection
+- Role-based field-level access control for SEO fields
+- Marketing role can update SEO fields (metaTitle, metaDescription, keywords, ogImage) in any collection
+- Designer role cannot modify SEO-related fields
+- Author role has read-only access to SEO fields
+
+---
+
+## 4. Page Specifications
+
+### 4.1 Home Page (`/`)
+
+**Route:** `/` or `/index`
+
+**Sections:**
+1. **Hero Section**
+   - Large hero with background image/video
+   - Main headline and CTA
+   - Smooth scroll indicator
+   - GSAP reveal animation
+
+2. **Services Overview**
+   - Grid/list of all services
+   - Icons and short descriptions
+   - Links to individual service pages
+   - Hover effects and animations
+
+3. **Sectors We Serve**
+   - Section heading: "SECTORS WE SERVE"
+   - Grid/carousel of sectors
+   - Each sector card with:
+     - Image
+     - Sector name
+     - Brief description
+     - Use cases preview
+     - Solutions delivered preview
+   - Expandable or modal view for full details
+
+4. **About Preview**
+   - Brief company introduction
+   - Key highlights
+   - CTA to About page
+   - Image/graphic
+
+5. **Portfolio Preview**
+   - Featured portfolio items (3-6 items)
+   - Grid layout with images
+   - Project titles and brief descriptions
+   - CTA to view more
+
+6. **Blog Preview**
+   - Recent blog posts (3-6 posts)
+   - Card layout with featured images
+   - Headlines and dates
+   - Excerpt/description
+   - CTA to Blog page
+
+7. **Contact CTA**
+   - Call-to-action section
+   - Contact information preview
+   - CTA button to Contact page
+
+**SEO Requirements:**
+- Meta title: "Shamal Technologies | Drone Survey & Geospatial Solutions in Saudi Arabia"
+- Meta description: SEO-optimized description
+- Open Graph tags
+- JSON-LD structured data (Organization schema)
+- Proper heading hierarchy (H1, H2, H3)
+
+### 4.2 About Page (`/about`)
+
+**Route:** `/about`
+
+**Sections:**
+1. **Hero Section**
+   - Page title
+   - Company overview (use provided text, expanded)
+   - Hero image
+
+2. **Vision Section**
+   - Company vision statement
+   - Visual element
+
+3. **Mission Section**
+   - Company mission statement
+   - Visual element
+
+4. **Certifications**
+   - Grid of certification logos/images
+   - Certification names and descriptions
+
+5. **Achievements**
+   - Timeline or grid of achievements
+   - Icons and descriptions
+
+6. **Company Timeline**
+   - Chronological timeline
+   - Key milestones
+
+7. **Leadership Team**
+   - Team member cards
+   - Photos, names, positions, bios
+
+8. **Clients**
+   - Client logos grid
+   - Optional testimonials
+
+9. **Strengths**
+   - Company strengths/advantages
+   - Icons and descriptions
+
+**Content Source:** PayloadCMS Globals > About Page Content
+
+**SEO Requirements:**
+- Meta title: "About Us | Shamal Technologies"
+- Meta description
+- JSON-LD structured data (AboutPage schema)
+
+### 4.3 Services Listing Page (`/services`)
+
+**Route:** `/services`
+
+**Content:**
+- Page title: "Our Services"
+- Grid layout of all services
+- Each service card includes:
+  - Service icon/image
+  - Service name
+  - Short description
+  - Link to individual service page
+
+**Services List:**
+1. Aerial Survey
+2. Construction Monitoring
+3. Asset Inspection
+4. Bathymetric & Underwater Survey
+5. GIS & Remote Sensing
+6. Environmental Monitoring
+7. SCAN/CAD to BIM
+8. Mining & Exploration
+9. Security Surveillance
+10. AI Application Development
+11. Agriculture Monitoring
+12. Special Projects
+
+**Content Source:** PayloadCMS Services Collection
+
+**SEO Requirements:**
+- Meta title: "Our Services | Shamal Technologies"
+- Meta description
+- JSON-LD structured data (ItemList schema)
+
+### 4.4 Individual Service Pages
+
+**Route:** `/services/[slug]`
+
+**Dynamic Routes:** Generated from PayloadCMS Services collection
+
+**Sections:**
+1. **Hero Section**
+   - Service name as H1
+   - Hero image
+   - Brief description
+   - CTA button
+
+2. **Service Benefits**
+   - List/grid of benefits
+   - Icons and descriptions
+   - GSAP reveal animations
+
+3. **Applications**
+   - Use cases and applications
+   - Images and descriptions
+   - Real-world examples
+
+4. **Technologies Used**
+   - Technologies and tools
+   - Icons/logos
+   - Descriptions
+
+5. **Portfolio Examples**
+   - Related portfolio items
+   - Grid/carousel layout
+   - Project images and descriptions
+   - Links to full portfolio items
+
+6. **FAQs**
+   - Accordion or expandable FAQ section
+   - Questions and answers
+
+7. **CTA Section**
+   - Call-to-action
+   - Contact form or CTA button
+
+**Content Source:** PayloadCMS Services Collection
+
+**SEO Requirements:**
+- Dynamic meta title based on service name
+- Dynamic meta description
+- JSON-LD structured data (Service schema)
+- Breadcrumb navigation
+
+### 4.5 Products Page (`/products`)
+
+**Route:** `/products`
+
+**Content:**
+- Page title: "Our Products"
+- Dynamic product listing from PayloadCMS
+- Grid/list layout
+- Each product card includes:
+  - Product image(s)
+  - Product name
+  - Brief description
+  - Key specifications preview
+  - "Request Quote" CTA button
+- Filtering/sorting options (optional)
+- Pagination if needed
+
+**Content Source:** PayloadCMS Products Collection
+
+**SEO Requirements:**
+- Meta title: "Products | Shamal Technologies"
+- Meta description
+- JSON-LD structured data (ItemList schema)
+
+### 4.6 Blog Page (`/blog`)
+
+**Route:** `/blog`
+
+**Content:**
+- Page title: "Blog" or "News & Insights"
+- Dynamic blog listing from PayloadCMS
+- Grid/list layout
+- Each blog card includes:
+  - Featured image or media carousel
+  - Headline
+  - Publication date
+  - Description (excerpt, up to 5000 chars)
+  - Read more link
+- Pagination
+- Category/tag filtering (optional)
+
+**Recent Blogs Section:**
+- Section title: "Recent Blogs"
+- Displays last 3-6 blog posts
+- Similar card layout
+
+**Content Source:** PayloadCMS Blog Collection
+
+**SEO Requirements:**
+- Meta title: "Blog | Shamal Technologies"
+- Meta description
+- JSON-LD structured data (Blog schema)
+- RSS feed (optional)
+
+### 4.7 Individual Blog Post Page
+
+**Route:** `/blog/[slug]`
+
+**Dynamic Routes:** Generated from PayloadCMS Blog collection
+
+**Content:**
+- Blog headline (H1)
+- Publication date and author
+- Featured image or media carousel
+- Full blog content (RichText from CMS)
+- Social sharing buttons (optional)
+- Related posts section
+- Recent blogs section
+
+**Content Source:** PayloadCMS Blog Collection
+
+**SEO Requirements:**
+- Dynamic meta title from blog headline
+- Dynamic meta description
+- JSON-LD structured data (BlogPosting schema)
+- Open Graph tags for social sharing
+- Breadcrumb navigation
+
+### 4.8 Contact Page (`/contact`)
+
+**Route:** `/contact`
+
+**Sections:**
+1. **Contact Form**
+   - Form fields:
+     - Name (required)
+     - Email (required)
+     - Phone (optional)
+     - Company (optional)
+     - Subject (optional)
+     - Services (Checkboxes, multiple selection, optional)
+       - Display all services from Services Collection
+       - Users can select multiple services
+       - Checkbox UI component
+     - Message (required)
+   - Form validation
+   - Submit button
+   - Success/error messages
+   - Form submission:
+     - Store in PayloadCMS Contact Submissions collection
+     - Include selected services in submission
+     - Send email notification
+     - Show success message
+
+2. **Map View**
+   - Google Maps iframe embed
+   - Embed URL: `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3709.576529544237!2d39.10571367472985!3d21.60244686782873!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15c3db0078a8628d%3A0x76e949674d3f8aa4!2sShamal%20Technologies!5e0!3m2!1sen!2ssa!4v1765110005511!5m2!1sen!2ssa`
+   - Responsive iframe
+   - Link to full Google Maps: `https://maps.app.goo.gl/19WL7fCtwww1KBRz6`
+
+3. **Company NAP (Name, Address, Phone)**
+   - Company name: Shamal Technologies
+   - Address: 11th floor, Office no:1109, The Headquarters Business Park, Jeddah 23511
+   - Phone: +966 (0) 53 030 1370
+   - Email: hello@shamal.sa
+   - Display in structured format
+   - Clickable phone and email links
+
+**SEO Requirements:**
+- Meta title: "Contact Us | Shamal Technologies"
+- Meta description
+- JSON-LD structured data (LocalBusiness schema)
+- Include NAP in structured data
+
+---
+
+## 5. SEO Requirements
+
+### 5.1 Technical SEO
+
+#### 5.1.1 Meta Tags
+- Unique meta titles for each page (50-60 characters)
+- Unique meta descriptions (150-160 characters)
+- Open Graph tags for social sharing
+- Twitter Card tags
+- Canonical URLs
+- Language tags (English, Arabic support)
+
+#### 5.1.2 Structured Data (JSON-LD)
+Implement the following schemas:
+- **Organization** (Homepage)
+- **WebSite** (Homepage)
+- **Service** (Service pages)
+- **BlogPosting** (Blog posts)
+- **Blog** (Blog listing)
+- **LocalBusiness** (Contact page)
+- **AboutPage** (About page)
+- **ItemList** (Services, Products listings)
+- **BreadcrumbList** (All pages)
+
+#### 5.1.3 Heading Hierarchy
+- Single H1 per page
+- Proper H2, H3, H4 hierarchy
+- Semantic HTML5 elements
+
+#### 5.1.4 Performance
+- Image optimization (Next.js Image component)
+- Lazy loading for images and content
+- Code splitting
+- Minification
+- Gzip compression
+- Fast page load times (< 3 seconds)
+
+#### 5.1.5 Mobile Optimization
+- Fully responsive design
+- Mobile-first approach
+- Touch-friendly interfaces
+- Fast mobile load times
+
+#### 5.1.6 Accessibility
+- WCAG 2.1 AA compliance
+- Semantic HTML
+- ARIA labels where needed
+- Keyboard navigation support
+- Alt text for all images
+
+### 5.2 Content SEO
+
+#### 5.2.1 Keywords
+- **Dynamic Keywords Management:**
+  - All SEO keywords managed through PayloadCMS admin panel
+  - SEO Keywords Collection for keyword management
+  - SEO Settings Global for primary, secondary, and long-tail keywords
+  - Service-specific and sector-specific keywords mapping
+  - Default primary keywords: "drone survey Saudi Arabia", "geospatial solutions KSA", "drone services Jeddah"
+  - Keywords can be updated by Admin and Marketing roles
+  - Keywords automatically applied to relevant pages based on category and relationships
+
+#### 5.2.2 Content Optimization
+- SEO-rich content on all pages
+- Natural keyword integration
+- Internal linking structure
+- Descriptive URLs (slug-based)
+
+#### 5.2.3 Sitemap
+- XML sitemap generation
+- Auto-update on content changes
+- Submit to Google Search Console
+
+#### 5.2.4 Robots.txt
+- Proper robots.txt configuration
+- Allow search engine crawling
+- Block admin/CMS areas
+
+---
+
+## 6. Design & UI/UX Requirements
+
+### 6.1 Design System
+
+#### 6.1.1 Color Scheme
+- Professional color palette suitable for tech company
+- Primary brand colors (to be determined or use existing)
+- Accessible color contrast ratios (WCAG AA)
+
+#### 6.1.2 Typography
+- Modern, readable font stack
+- Proper font hierarchy
+- Responsive font sizes
+- Support for Arabic text (RTL)
+
+#### 6.1.3 Components (ShadCN UI)
+- Button components
+- Card components
+- Form components
+- Navigation components
+- Modal/Dialog components
+- Accordion components
+- Carousel components
+- And other ShadCN UI components as needed
+
+### 6.2 Animations
+
+#### 6.2.1 Lenis Smooth Scroll
+- Implement Lenis for smooth scrolling
+- Custom scroll behavior
+- Scroll-triggered animations
+
+#### 6.2.2 GSAP Animations
+- Reveal animations on scroll
+- Fade-in animations
+- Slide-in animations
+- Parallax effects (subtle)
+- Hover animations
+- Page transition animations
+
+#### 6.2.3 Animation Guidelines
+- Subtle and professional
+- Performance-optimized
+- Respect user preferences (prefers-reduced-motion)
+- Not overwhelming or distracting
+
+### 6.3 Responsive Design
+
+#### 6.3.1 Breakpoints
+- Mobile: < 640px
+- Tablet: 640px - 1024px
+- Desktop: > 1024px
+- Large Desktop: > 1280px
+
+#### 6.3.2 Responsive Requirements
+- All pages fully responsive
+- Touch-friendly on mobile
+- Readable text on all devices
+- Optimized images for each breakpoint
+- Mobile navigation menu
+- Responsive tables/grids
+
+### 6.4 User Experience
+
+#### 6.4.1 Navigation
+- Clear, intuitive navigation
+- Sticky header (optional)
+- Breadcrumb navigation
+- Footer navigation
+- Mobile hamburger menu
+
+#### 6.4.2 Loading States
+- Loading spinners/skeletons
+- Progressive image loading
+- Smooth page transitions
+
+#### 6.4.3 Error Handling
+- 404 error page
+- 500 error page
+- Form validation errors
+- User-friendly error messages
+
+---
+
+## 7. Integrations
+
+### 7.1 Newsletter Integration
+
+#### 7.1.1 Architecture
+- Generic newsletter service abstraction
+- Interface/abstraction layer for easy provider switching
+- Environment variable configuration
+
+#### 7.1.2 Implementation
+- Newsletter service interface
+- Mailchimp-compatible initial implementation
+- Configuration via environment variables:
+  - `NEWSLETTER_API_KEY`
+  - `NEWSLETTER_AUDIENCE_ID` or `NEWSLETTER_LIST_ID`
+  - `NEWSLETTER_API_URL` (optional)
+
+#### 7.1.3 Features
+- Email subscription form
+- Double opt-in support (optional)
+- Error handling
+- Success/error feedback to users
+- Store subscriptions in PayloadCMS as backup
+
+#### 7.1.4 Future Provider Support
+- Design abstraction to support:
+  - Mailchimp
+  - SendGrid
+  - ConvertKit
+  - Custom API
+  - Other providers
+
+### 7.2 Email Notifications
+
+#### 7.2.1 Contact Form Submissions
+- Email notification on form submission
+- Configurable recipient email
+- Email template with form data
+- Environment variable: `CONTACT_EMAIL`
+
+#### 7.2.2 Email Service
+- Use generic email service (Nodemailer, SendGrid, etc.)
+- Environment variable configuration
+- Support for SMTP or API-based services
+
+### 7.3 Google Maps
+
+#### 7.3.1 Implementation
+- Google Maps iframe embed on Contact page
+- Responsive iframe wrapper
+- Link to full Google Maps page
+- Embed URL provided in requirements
+
+---
+
+## 8. Database & Data Management
+
+### 8.1 MongoDB Setup
+
+#### 8.1.1 Local Development
+- Local MongoDB installation
+- Connection string: `mongodb://localhost:27017/shamal-technologies`
+- Environment variable: `MONGODB_URI`
+
+#### 8.1.2 Production
+- MongoDB Atlas or cloud MongoDB
+- Secure connection string
+- Environment variable configuration
+
+### 8.2 Data Seeding
+
+#### 8.2.1 Database Seeder
+Create a comprehensive database seeder script to populate initial data:
+
+**Seeder Script Location:** `payload/seed.ts` or `scripts/seed.ts`
+
+**Seed Data Includes:**
+
+1. **User Roles & Users:**
+   - Create default user roles (Admin, Author, Designer, Marketing)
+   - Create default admin user (credentials in env or config)
+   - Create sample users for each role (optional)
+
+2. **Services Collection:**
+   - Seed all 12 services with initial content:
+     - Aerial Survey
+     - Construction Monitoring
+     - Asset Inspection
+     - Bathymetric & Underwater Survey
+     - GIS & Remote Sensing
+     - Environmental Monitoring
+     - SCAN/CAD to BIM
+     - Mining & Exploration
+     - Security Surveillance
+     - AI Application Development
+     - Agriculture Monitoring
+     - Special Projects
+   - Each service with placeholder content, hero images, benefits, applications, technologies, FAQs
+
+3. **Sectors Content:**
+   - Seed all 11 sectors:
+     - Government, Transportation, Mining, Construction, Real Estate, Education, Oil & Gas, Heritage, Marine, Agriculture, Utilities
+   - Each sector with description, use cases, solutions delivered
+
+4. **Site Settings Global:**
+   - Default site name, description
+   - Contact information (phone, email, address, map URLs)
+   - Logo and favicon placeholders
+
+5. **Homepage Content Global:**
+   - Default hero section content
+   - Services overview section
+   - Sectors section
+   - About preview section
+   - Portfolio preview section
+   - Blog preview section
+   - Contact CTA section
+
+6. **About Page Content Global:**
+   - Company description (from requirements)
+   - Vision and mission placeholders
+   - Certifications array (empty, ready for content)
+   - Achievements array (empty, ready for content)
+   - Timeline array (empty, ready for content)
+   - Leadership array (empty, ready for content)
+   - Clients array (empty, ready for content)
+   - Strengths array (empty, ready for content)
+
+7. **SEO Keywords Collection:**
+   - Primary keywords: "drone survey Saudi Arabia", "geospatial solutions KSA", "drone services Jeddah"
+   - Secondary keywords (service-specific)
+   - Long-tail keywords
+   - Service-specific keyword mappings
+   - Sector-specific keyword mappings
+
+8. **SEO Settings Global:**
+   - Primary keywords array
+   - Secondary keywords array
+   - Long-tail keywords array
+   - Service keywords mapping
+   - Sector keywords mapping
+   - Default meta description template
+   - Default OG image placeholder
+
+9. **Sample Content (Optional):**
+   - 3-5 sample blog posts
+   - 3-5 sample portfolio items
+   - 2-3 sample products
+
+**Seeder Implementation:**
+- Use PayloadCMS local API or direct MongoDB operations
+- Check for existing data before seeding (idempotent)
+- Environment variable to control seeding: `SEED_DATABASE=true`
+- Command: `npm run seed` or `yarn seed`
+- Logging for seed operations
+- Error handling for failed seed operations
+
+**Seeder Features:**
+- Idempotent: Can run multiple times safely
+- Selective seeding: Option to seed specific collections
+- Dry run mode: Preview what will be seeded
+- Reset option: Clear and reseed (use with caution)
+
+#### 8.2.2 Content Migration
+- If migrating from existing site, plan for content import
+- CSV/JSON import scripts if needed
+- Migration scripts separate from seeder
+
+---
+
+## 9. Development Guidelines
+
+### 9.1 Code Quality
+
+#### 9.1.1 Standards
+- TypeScript strict mode
+- ESLint configuration
+- Prettier for code formatting
+- Clean, semantic code
+- Proper error handling
+- Code comments where needed
+
+#### 9.1.2 File Organization
+- Component-based architecture
+- Reusable components
+- Proper separation of concerns
+- Utility functions in lib folder
+- Type definitions in types folder
+
+### 9.2 Performance
+
+#### 9.2.1 Optimization
+- Image optimization (Next.js Image)
+- Code splitting
+- Lazy loading
+- Minimal JavaScript bundles
+- Efficient API calls
+- Caching strategies
+
+#### 9.2.2 Monitoring
+- Performance metrics
+- Core Web Vitals optimization
+- Lighthouse scores > 90
+
+### 9.3 Security
+
+#### 9.3.1 Best Practices
+- Environment variables for secrets
+- Input validation
+- XSS protection
+- CSRF protection
+- Secure API endpoints
+- PayloadCMS authentication
+
+#### 9.3.2 Dependencies
+- Regular dependency updates
+- Security vulnerability scanning
+- Use trusted packages
+
+---
+
+## 10. Testing Requirements
+
+### 10.1 Testing Strategy
+
+#### 10.1.1 Types of Testing
+- Manual testing of all pages
+- Form validation testing
+- Responsive design testing
+- Cross-browser testing
+- SEO validation
+- Performance testing
+
+#### 10.1.2 Browser Support
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+### 10.2 Quality Assurance
+
+#### 10.2.1 Checklist
+- All pages load correctly
+- All forms work
+- All links work
+- Images load properly
+- Animations work smoothly
+- Mobile responsiveness
+- SEO tags present
+- Structured data valid
+
+---
+
+## 11. Deployment & Environment
+
+### 11.1 Environment Variables
+
+#### 11.1.1 Required Variables
+```
+# Database
+MONGODB_URI=mongodb://localhost:27017/shamal-technologies
+
+# PayloadCMS
+PAYLOAD_SECRET=your-secret-key
+PAYLOAD_URL=http://localhost:3000
+
+# Next.js
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_NAME=Shamal Technologies
+
+# Newsletter (Generic)
+NEWSLETTER_API_KEY=your-api-key
+NEWSLETTER_AUDIENCE_ID=your-audience-id
+NEWSLETTER_PROVIDER=mailchimp
+
+# Email
+CONTACT_EMAIL=hello@shamal.sa
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASS=your-password
+
+# Google Maps (if needed)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-api-key
+
+# Database Seeding
+SEED_DATABASE=false
+SEED_ADMIN_EMAIL=admin@shamal.sa
+SEED_ADMIN_PASSWORD=change-me-in-production
+```
+
+### 11.2 Deployment
+
+#### 11.2.1 Build Process
+- Next.js production build
+- PayloadCMS admin panel accessible
+- Static generation where possible
+- ISR for dynamic content
+
+#### 11.2.2 Hosting
+- Provider-agnostic setup
+- Support for Vercel, Netlify, AWS, etc.
+- Environment variable configuration
+- Database connection (MongoDB Atlas recommended for production)
+
+---
+
+## 12. Content Requirements
+
+### 12.1 Initial Content
+
+#### 12.1.1 Services Content
+- 12 service pages with full content
+- Hero sections, benefits, applications, technologies, FAQs
+- Images for each service
+
+#### 12.1.2 Sectors Content
+- 11 sectors with details
+- Images, use cases, solutions delivered
+
+#### 12.1.3 About Page Content
+- Use provided company description
+- Expand into full SEO-rich content
+- Vision, mission, certifications, achievements, timeline, leadership, clients, strengths
+
+#### 12.1.4 Contact Information
+- Phone: +966 (0) 53 030 1370
+- Email: hello@shamal.sa
+- Address: 11th floor, Office no:1109, The Headquarters Business Park, Jeddah 23511
+- Map embed URL: (provided in requirements)
+
+### 12.2 Content Guidelines
+
+#### 12.2.1 Writing Style
+- Professional, clear, and concise
+- SEO-optimized but natural
+- Industry-specific terminology
+- Arabic/English bilingual support (if needed)
+
+#### 12.2.2 Images
+- High-quality images
+- Optimized file sizes
+- Proper alt text
+- Consistent style
+
+---
+
+## 13. Future Enhancements (Out of Scope)
+
+### 13.1 Potential Future Features
+- Multi-language support (Arabic/English)
+- Advanced search functionality
+- Client portal/login
+- Project management integration
+- Advanced analytics
+- A/B testing capabilities
+- Advanced filtering on products/blog
+- Blog categories and tags filtering
+- Related posts algorithm
+- Social media integration
+- Live chat support
+
+---
+
+## 14. Success Criteria
+
+### 14.1 Technical Success
+- ✅ All pages load in < 3 seconds
+- ✅ Lighthouse score > 90
+- ✅ Mobile-friendly (Google Mobile-Friendly Test)
+- ✅ Zero critical security vulnerabilities
+- ✅ All forms functional
+- ✅ CMS fully operational
+
+### 14.2 SEO Success
+- ✅ All pages have proper meta tags
+- ✅ Structured data validated (Google Rich Results Test)
+- ✅ XML sitemap generated
+- ✅ robots.txt configured
+- ✅ Proper heading hierarchy
+- ✅ Internal linking structure
+
+### 14.3 User Experience Success
+- ✅ Intuitive navigation
+- ✅ Smooth animations
+- ✅ Responsive on all devices
+- ✅ Accessible (WCAG 2.1 AA)
+- ✅ Professional appearance
+- ✅ Fast and smooth interactions
+
+---
+
+## 15. Timeline & Milestones
+
+### 15.1 Development Phases
+
+#### Phase 1: Setup & Configuration
+- Project initialization
+- PayloadCMS setup
+- MongoDB connection
+- Basic Next.js structure
+- ShadCN UI integration
+
+#### Phase 2: CMS Development
+- PayloadCMS collections
+- PayloadCMS globals
+- Admin panel configuration
+- User roles and access control implementation
+- Database seeder script development
+- Seed data creation and testing
+
+#### Phase 3: Frontend Development
+- Home page
+- About page
+- Services pages
+- Products page
+- Blog pages
+- Contact page
+
+#### Phase 4: Integrations
+- Newsletter integration
+- Email notifications
+- Google Maps
+- Form handling
+
+#### Phase 5: SEO & Optimization
+- SEO implementation
+- Structured data
+- Performance optimization
+- Image optimization
+
+#### Phase 6: Testing & Refinement
+- Testing all features
+- Bug fixes
+- Performance tuning
+- Final refinements
+
+---
+
+## 16. Questions & Assumptions
+
+### 16.1 Assumptions
+1. Existing website design can be referenced but new design will be modernized
+2. All content will be provided or created during development
+3. MongoDB will be set up locally for development
+4. Newsletter service credentials will be provided
+5. Domain and hosting will be configured separately
+
+### 16.2 Open Questions
+1. **Design Preferences:** Any specific design mockups or brand guidelines to follow?
+2. **Arabic Support:** Is RTL (Right-to-Left) Arabic language support required?
+3. **Analytics:** Should Google Analytics or other analytics be integrated?
+4. **Hosting Preference:** Any preferred hosting provider for production?
+5. **Content Migration:** Is there existing content to migrate from current site?
+
+---
+
+## 17. Appendix
+
+### 17.1 Contact Information
+- **Company:** Shamal Technologies
+- **Website:** shamal.sa
+- **Phone:** +966 (0) 53 030 1370
+- **Email:** hello@shamal.sa
+- **Address:** 11th floor, Office no:1109, The Headquarters Business Park, Jeddah 23511
+
+### 17.2 References
+- Existing website: https://shamal.sa/
+- Next.js Documentation: https://nextjs.org/docs
+- PayloadCMS Documentation: https://payloadcms.com/docs
+- ShadCN UI: https://ui.shadcn.com/
+- Google Maps Embed: (URL provided in requirements)
+
+---
+
+**Document End**
+

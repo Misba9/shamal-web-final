@@ -1,0 +1,337 @@
+import { apiClient } from './api';
+
+export interface Admin {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  admin: Admin;
+}
+
+export interface ProjectsByStatus {
+  draft: number;
+  active: number;
+  completed: number;
+}
+
+export interface RecentActivity {
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  details?: string;
+  createdAt: string;
+  adminId?: { email?: string } | null;
+}
+
+export interface DashboardData {
+  projectsCount: number;
+  projectsByStatus: ProjectsByStatus;
+  blogsThisMonth: number;
+  newUsersToday: number;
+  newUsersThisWeek: number;
+  websiteVisits: number;
+  recentActivities: RecentActivity[];
+  // Backward compatibility
+  totalProjects?: number;
+  totalBlogs?: number;
+  totalUsers?: number;
+  totalLeads?: number;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+}
+
+export interface Project {
+  _id: string;
+  title: string;
+  description?: string;
+  tags?: string[];
+  category?: string | Category | null;
+  images?: string[];
+  projectUrl?: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  archived?: boolean;
+  archivedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectsListParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  archived?: boolean;
+}
+
+export interface ProjectsResponse {
+  success: boolean;
+  count: number;
+  data: Project[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export type BlogStatus = 'draft' | 'published';
+
+export interface Blog {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  featuredImage?: string;
+  thumbnail?: string;
+  status: BlogStatus;
+  published?: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogsListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: BlogStatus;
+}
+
+export interface BlogsResponse {
+  success: boolean;
+  count: number;
+  data: Blog[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export const authApi = {
+  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>('/auth/admin/login', credentials);
+    return response.data;
+  },
+};
+
+export const adminApi = {
+  getDashboard: async (): Promise<DashboardData> => {
+    const response = await apiClient.get<DashboardData>('/admin/dashboard');
+    return response.data;
+  },
+};
+
+export const categoriesApi = {
+  getAll: async (): Promise<{ success: boolean; data: Category[] }> => {
+    const response = await apiClient.get<{ success: boolean; data: Category[] }>('/categories');
+    return response.data;
+  },
+  create: async (data: { name: string }): Promise<{ success: boolean; message: string; data: Category }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Category }>('/categories', data);
+    return response.data;
+  },
+};
+
+export const projectsApi = {
+  getAll: async (params?: ProjectsListParams): Promise<ProjectsResponse> => {
+    const response = await apiClient.get<ProjectsResponse>('/projects', {
+      params: {
+        ...(params?.page != null && { page: params.page }),
+        ...(params?.limit != null && { limit: params.limit }),
+        ...(params?.category && { category: params.category }),
+        ...(params?.archived === true && { archived: 'true' }),
+        ...(params?.archived === false && { archived: 'false' }),
+      },
+    });
+    const d = response.data;
+    return { ...d, data: Array.isArray(d?.data) ? d.data : [] };
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Project }> => {
+    const response = await apiClient.get<{ success: boolean; data: Project }>(`/projects/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Project>): Promise<{ success: boolean; message: string; data: Project }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Project }>('/projects', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Project>): Promise<{ success: boolean; message: string; data: Project }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Project }>(`/projects/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Project }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Project }>(`/projects/${id}`);
+    return response.data;
+  },
+  uploadImages: async (files: File[]): Promise<{ success: boolean; data: { paths: string[] } }> => {
+    const form = new FormData();
+    files.forEach((f) => form.append('images', f));
+    const response = await apiClient.post<{ success: boolean; data: { paths: string[] } }>('/projects/upload-images', form);
+    return response.data;
+  },
+};
+
+export const blogsApi = {
+  getAll: async (params?: BlogsListParams): Promise<BlogsResponse> => {
+    const sp = new URLSearchParams();
+    if (params?.page != null) sp.set('page', String(params.page));
+    if (params?.limit != null) sp.set('limit', String(params.limit));
+    if (params?.search) sp.set('search', params.search);
+    if (params?.status) sp.set('status', params.status);
+    const q = sp.toString();
+    const response = await apiClient.get<BlogsResponse>(`/blogs${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  checkSlug: async (slug: string, excludeId?: string): Promise<{ success: boolean; available: boolean }> => {
+    const sp = new URLSearchParams({ slug });
+    if (excludeId) sp.set('excludeId', excludeId);
+    const response = await apiClient.get<{ success: boolean; available: boolean }>(`/blogs/check-slug?${sp}`);
+    return response.data;
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Blog }> => {
+    const response = await apiClient.get<{ success: boolean; data: Blog }>(`/blogs/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Blog>): Promise<{ success: boolean; message: string; data: Blog }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Blog }>('/blogs', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Blog>): Promise<{ success: boolean; message: string; data: Blog }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Blog }>(`/blogs/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Blog }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Blog }>(`/blogs/${id}`);
+    return response.data;
+  },
+};
+
+export type LeadStatus = 'new' | 'contacted' | 'converted';
+
+export interface Lead {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: LeadStatus;
+  internalNotes?: string;
+  emailNotify?: boolean;
+  read?: boolean;
+  source?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadsListParams {
+  status?: LeadStatus;
+  search?: string;
+}
+
+export interface LeadsResponse {
+  success: boolean;
+  count: number;
+  data: Lead[];
+}
+
+export const leadsApi = {
+  getAll: async (params?: LeadsListParams | string): Promise<LeadsResponse> => {
+    const sp = new URLSearchParams();
+    if (params != null) {
+      if (typeof params === 'string') {
+        if (params) sp.set('status', params);
+      } else {
+        if (params.status) sp.set('status', params.status);
+        if (params.search) sp.set('search', params.search);
+      }
+    }
+    const q = sp.toString();
+    const response = await apiClient.get<LeadsResponse>(`/contacts${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Lead }> => {
+    const response = await apiClient.get<{ success: boolean; data: Lead }>(`/contacts/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Lead>): Promise<{ success: boolean; message: string; data: Lead }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Lead }>('/contacts', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Pick<Lead, 'status' | 'internalNotes' | 'emailNotify' | 'name' | 'email' | 'phone' | 'message' | 'read'>>): Promise<{ success: boolean; message: string; data: Lead }> => {
+    const response = await apiClient.patch<{ success: boolean; message: string; data: Lead }>(`/contacts/${id}`, data);
+    return response.data;
+  },
+  /** Trigger CSV download. Uses same filters as getAll. */
+  exportCsv: async (params?: LeadsListParams): Promise<void> => {
+    const sp = new URLSearchParams();
+    if (params?.status) sp.set('status', params.status);
+    if (params?.search) sp.set('search', params.search);
+    const q = sp.toString();
+    const response = await apiClient.get<Blob>(`/contacts/export${q ? `?${q}` : ''}`, { responseType: 'blob' });
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contacts-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Lead }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Lead }>(`/contacts/${id}`);
+    return response.data;
+  },
+};
+
+export interface NewsletterSubscriber {
+  _id: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NewsletterResponse {
+  success: boolean;
+  count: number;
+  data: NewsletterSubscriber[];
+}
+
+export const newsletterApi = {
+  getAll: async (): Promise<NewsletterResponse> => {
+    const response = await apiClient.get<NewsletterResponse>('/newsletter');
+    return response.data;
+  },
+  exportCsv: async (): Promise<void> => {
+    const response = await apiClient.get<Blob>('/newsletter/export', { responseType: 'blob' });
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `newsletter-subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: NewsletterSubscriber }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: NewsletterSubscriber }>(`/newsletter/${id}`);
+    return response.data;
+  },
+};

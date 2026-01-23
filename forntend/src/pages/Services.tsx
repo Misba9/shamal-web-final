@@ -455,11 +455,11 @@ const Services = () => {
                 </div>
               </div>
 
-              {/* Portfolio Highlights */}
+              {/* Projects Highlights */}
               <div className="detail-animate">
                 <div className="text-center mb-12">
                   <span className="inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
-                    Portfolio
+                    Projects
                   </span>
                   <h2 className="text-3xl md:text-4xl font-display font-bold">
                     Featured Projects
@@ -493,7 +493,7 @@ const Services = () => {
 
                 <div className="text-center mt-8">
                   <Button variant="outline" size="lg" asChild>
-                    <Link to="/portfolio">
+                    <Link to="/projects">
                       View All Projects
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Link>

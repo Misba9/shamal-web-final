@@ -230,7 +230,7 @@ const About = () => {
                   </Link>
                 </Button>
                 <Button variant="heroOutline" size="lg" asChild>
-                  <Link to="/portfolio">
+                  <Link to="/projects">
                     View Our Projects
                   </Link>
                 </Button>
