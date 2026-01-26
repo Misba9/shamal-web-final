@@ -39,6 +39,7 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
 export interface Category {
   _id: string;
   name: string;
+  slug?: string;
 }
 
 export interface CategoriesResponse {
@@ -158,7 +159,9 @@ export interface Blog {
   _id: string;
   title: string;
   slug: string;
+  excerpt?: string;
   content: string;
+  author?: string;
   featuredImage?: string;
   thumbnail?: string;
   status: string;
@@ -166,6 +169,8 @@ export interface Blog {
   publishedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface BlogsResponse {
@@ -206,4 +211,223 @@ export async function postNewsletter(email: string): Promise<{ success: boolean;
     method: 'POST',
     body: JSON.stringify({ email }),
   });
+}
+
+// --- Products (public: active only) ---
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  shortDescription?: string;
+  description?: string;
+  image?: string;
+  price?: number | null;
+  isActive: boolean;
+  showOnHome: boolean;
+  order?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductsResponse {
+  success: boolean;
+  count: number;
+  data: Product[];
+}
+
+export interface GetProductsParams {
+  active?: boolean;
+  home?: boolean;
+}
+
+export async function getProducts(params?: GetProductsParams): Promise<ProductsResponse> {
+  try {
+    const requestParams: Record<string, string> = {};
+    if (params?.active === true) requestParams.active = 'true';
+    if (params?.active === false) requestParams.active = 'false';
+    if (params?.home === true) requestParams.home = 'true';
+    if (params?.home === false) requestParams.home = 'false';
+
+    const { data } = await api.get<ProductsResponse>('/products', { params: requestParams });
+    
+    if (data?.success === false) {
+      throw new Error(data.message || 'Failed to fetch products');
+    }
+    
+    return {
+      success: data?.success !== false,
+      count: typeof data?.count === 'number' ? data.count : (Array.isArray(data?.data) ? data.data.length : 0),
+      data: Array.isArray(data?.data) ? data.data : [],
+    };
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to fetch products. Please try again later.');
+  }
+}
+
+export async function getProductBySlug(slug: string): Promise<{ success: boolean; data: Product }> {
+  return apiRequest<{ success: boolean; data: Product }>(`/products/${encodeURIComponent(slug)}`);
+}
+
+// --- Services (public: active only) ---
+export interface Service {
+  _id: string;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  description: string;
+  icon?: string;
+  featuredImage?: string;
+  isActive: boolean;
+  showOnHome: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServicesResponse {
+  success: boolean;
+  count: number;
+  data: Service[];
+}
+
+export async function getServices(): Promise<ServicesResponse> {
+  try {
+    const { data } = await api.get<ServicesResponse>('/services');
+    
+    if (data?.success === false) {
+      throw new Error(data.message || 'Failed to fetch services');
+    }
+    
+    return {
+      success: data?.success !== false,
+      count: typeof data?.count === 'number' ? data.count : (Array.isArray(data?.data) ? data.data.length : 0),
+      data: Array.isArray(data?.data) ? data.data : [],
+    };
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to fetch services. Please try again later.');
+  }
+}
+
+export async function getHomeServices(): Promise<ServicesResponse> {
+  try {
+    const { data } = await api.get<ServicesResponse>('/services/home');
+    
+    if (data?.success === false) {
+      throw new Error(data.message || 'Failed to fetch services');
+    }
+    
+    return {
+      success: data?.success !== false,
+      count: typeof data?.count === 'number' ? data.count : (Array.isArray(data?.data) ? data.data.length : 0),
+      data: Array.isArray(data?.data) ? data.data : [],
+    };
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to fetch services. Please try again later.');
+  }
+}
+
+export async function getServiceBySlug(slug: string): Promise<{ success: boolean; data: Service }> {
+  return apiRequest<{ success: boolean; data: Service }>(`/services/${encodeURIComponent(slug)}`);
+}
+
+// --- Jobs (public: active only) ---
+export interface Job {
+  _id: string;
+  title: string;
+  slug: string;
+  department?: string;
+  location?: string;
+  employmentType: 'Full-Time' | 'Part-Time' | 'Contract' | 'Internship';
+  experience?: string;
+  description: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  isActive: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JobsResponse {
+  success: boolean;
+  count: number;
+  data: Job[];
+}
+
+export async function getJobs(): Promise<JobsResponse> {
+  try {
+    const { data } = await api.get<JobsResponse>('/jobs');
+    
+    if (data?.success === false) {
+      throw new Error(data.message || 'Failed to fetch jobs');
+    }
+    
+    return {
+      success: data?.success !== false,
+      count: typeof data?.count === 'number' ? data.count : (Array.isArray(data?.data) ? data.data.length : 0),
+      data: Array.isArray(data?.data) ? data.data : [],
+    };
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to fetch jobs. Please try again later.');
+  }
+}
+
+export async function getJobBySlug(slug: string): Promise<{ success: boolean; data: Job }> {
+  return apiRequest<{ success: boolean; data: Job }>(`/jobs/${encodeURIComponent(slug)}`);
+}
+
+export async function submitJobApplication(formData: FormData): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/jobs/apply`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const text = await response.text();
+      let err: Error;
+      try {
+        const j = JSON.parse(text);
+        err = new Error(j.message || text || `HTTP ${response.status}`);
+      } catch {
+        err = new Error(text || `HTTP ${response.status}`);
+      }
+      throw err;
+    }
+    
+    return response.json();
+  } catch (error: any) {
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to submit application. Please try again later.');
+  }
 }

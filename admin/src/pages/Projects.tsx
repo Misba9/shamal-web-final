@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
 
 function getCategoryName(p: Project): string {
   const c = p.category;
@@ -108,10 +108,20 @@ export const ProjectsPage = () => {
             {total} project{total !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={() => navigate('/projects/new')} className="inline-flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add project
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/projects/categories')} 
+            className="inline-flex items-center gap-2"
+          >
+            <Tag className="h-4 w-4" />
+            Categories
+          </Button>
+          <Button onClick={() => navigate('/projects/new')} className="inline-flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add project
+          </Button>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">

@@ -3,41 +3,53 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getBlogs, type Blog } from '@/lib/api';
+import { getProducts, type Product } from '@/lib/api';
 import { getImageSrc } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function BlogsSection() {
+interface ProductsSectionProps {
+  limit?: number;
+  showViewAll?: boolean;
+}
+
+export function ProductsSection({ limit = 6, showViewAll = true }: ProductsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await getBlogs({ limit: 3 });
+        const res = await getProducts({ active: true, home: true });
         if (res.success && Array.isArray(res.data)) {
-          setBlogs(res.data);
+          // Sort by order, then by creation date
+          const sorted = res.data.sort((a, b) => {
+            const orderA = a.order ?? 0;
+            const orderB = b.order ?? 0;
+            if (orderA !== orderB) return orderA - orderB;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          setProducts(sorted.slice(0, limit));
         } else {
-          setBlogs([]);
+          setProducts([]);
         }
       } catch (e: any) {
-        console.error('Error loading blogs:', e);
-        setError(e?.message || 'Failed to load blogs');
-        setBlogs([]);
+        console.error('Error loading products:', e);
+        setError(e?.message || 'Failed to load products');
+        setProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBlogs();
-  }, []);
+    fetchProducts();
+  }, [limit]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -57,7 +69,7 @@ export function BlogsSection() {
       }
 
       // Grid Animation
-      if (gridRef.current && !loading && blogs.length > 0) {
+      if (gridRef.current && !loading && products.length > 0) {
         gsap.from(gridRef.current.children, {
           y: 60,
           opacity: 0,
@@ -74,27 +86,32 @@ export function BlogsSection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [loading, blogs.length]);
+  }, [loading, products.length]);
+
+  // Hide section if no products
+  if (!loading && products.length === 0) {
+    return null;
+  }
 
   return (
-    <section ref={sectionRef} className="relative py-20 md:py-28 overflow-hidden">
+    <section ref={sectionRef} className="relative py-20 md:py-28 overflow-hidden bg-card/30">
       <div className="container-custom">
         {/* Section Header */}
         <div ref={headerRef} className="text-center mb-12 md:mb-16">
           <span className="inline-block text-primary text-sm font-semibold uppercase tracking-widest mb-4">
-            Insights
+            Our Products
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-            Latest{' '}
-            <span className="text-gradient-primary">Blog Posts</span>
+            Featured{' '}
+            <span className="text-gradient-primary">Products</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Stay updated with the latest trends, technologies, and insights 
-            in drone surveying and geospatial solutions.
+            Professional-grade drone equipment, sensors, and geospatial technology 
+            products available for sale or lease.
           </p>
         </div>
 
-        {/* Blog Cards Grid */}
+        {/* Products Grid */}
         {loading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -104,21 +121,21 @@ export function BlogsSection() {
             <p className="text-destructive mb-2">{error}</p>
             <p className="text-sm text-muted-foreground">Please try again later.</p>
           </div>
-        ) : blogs.length === 0 ? null : (
+        ) : products.length === 0 ? null : (
           <>
             <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {blogs.map((blog) => (
+              {products.map((product) => (
                 <Link
-                  key={blog._id}
-                  to={`/blog/${blog.slug}`}
+                  key={product._id}
+                  to={`/products/${product.slug}`}
                   className="group block"
                 >
                   <article className="h-full bg-card rounded-2xl border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-300">
                     {/* Image */}
                     <div className="relative aspect-[3/2] overflow-hidden">
                       <img
-                        src={getImageSrc(blog.featuredImage || blog.thumbnail || '')}
-                        alt={blog.title}
+                        src={getImageSrc(product.image || '')}
+                        alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -126,14 +143,21 @@ export function BlogsSection() {
 
                     {/* Content */}
                     <div className="p-6">
+                      {product.price != null && (
+                        <div className="mb-3">
+                          <span className="inline-block bg-primary text-primary-foreground text-sm font-semibold px-3 py-1 rounded-full">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}
+                          </span>
+                        </div>
+                      )}
                       <h3 className="font-display font-bold text-lg md:text-xl mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                        {blog.title}
+                        {product.name}
                       </h3>
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
-                        {blog.excerpt || (blog.content ? blog.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150) + '…' : '')}
+                        {product.shortDescription || product.description || 'No description available.'}
                       </p>
                       <span className="inline-flex items-center gap-2 text-primary text-sm font-medium group-hover:gap-3 transition-all">
-                        Read More
+                        Learn More
                         <ArrowRight className="h-4 w-4" />
                       </span>
                     </div>
@@ -142,13 +166,13 @@ export function BlogsSection() {
               ))}
             </div>
             
-            {blogs.length > 0 && (
+            {showViewAll && products.length > 0 && (
               <div className="text-center mt-12">
                 <Link
-                  to="/blog"
+                  to="/products"
                   className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
                 >
-                  View All Blogs
+                  View All Products
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>

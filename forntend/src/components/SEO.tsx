@@ -7,6 +7,7 @@ interface SEOProps {
   type?: 'website' | 'article';
   name?: string;
   image?: string;
+  keywords?: string[];
   schema?: Record<string, any>;
 }
 
@@ -17,6 +18,7 @@ export function SEO({
   type = 'website', 
   name = 'Shamal Technologies', 
   image = '/sa.svg',
+  keywords = [],
   schema 
 }: SEOProps) {
   const siteUrl = 'https://shamal.sa';
@@ -47,6 +49,7 @@ export function SEO({
       {/* Standard Metadata */}
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
       <link rel="canonical" href={canonical ? `${siteUrl}${canonical}` : siteUrl} />
 
       {/* Open Graph / Facebook */}

@@ -169,12 +169,22 @@ export const validateBlog = [
     .withMessage('Slug must be lowercase alphanumeric with hyphens')
     .isLength({ max: 300 })
     .withMessage('Slug cannot exceed 300 characters'),
+  body('excerpt')
+    .optional({ values: 'null' })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Excerpt cannot exceed 500 characters'),
   body('content')
     .trim()
     .notEmpty()
     .withMessage('Content is required')
     .isLength({ min: 1, max: 100000 })
     .withMessage('Content must be between 1 and 100000 characters'),
+  body('author')
+    .optional({ values: 'null' })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Author name cannot exceed 100 characters'),
   body('featuredImage')
     .optional({ values: 'null' })
     .trim()
@@ -231,11 +241,21 @@ export const validateBlogUpdate = [
     .withMessage('Slug must be lowercase alphanumeric with hyphens')
     .isLength({ max: 300 })
     .withMessage('Slug cannot exceed 300 characters'),
+  body('excerpt')
+    .optional({ values: 'null' })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Excerpt cannot exceed 500 characters'),
   body('content')
     .optional()
     .trim()
     .isLength({ min: 1, max: 100000 })
     .withMessage('Content must be between 1 and 100000 characters'),
+  body('author')
+    .optional({ values: 'null' })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Author name cannot exceed 100 characters'),
   body('featuredImage')
     .optional({ values: 'null' })
     .trim()

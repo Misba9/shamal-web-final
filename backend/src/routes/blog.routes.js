@@ -7,6 +7,7 @@ import {
   getBlogBySlugOrId,
   updateBlog,
   deleteBlog,
+  handleUploadBlogImage,
 } from '../controllers/blog.controller.js';
 import {
   validate,
@@ -15,10 +16,12 @@ import {
   validateBlogListQuery,
   validateObjectId,
 } from '../middlewares/validation.middleware.js';
+import { uploadBlogImage } from '../middlewares/upload.blogs.js';
 
 const router = express.Router();
 
 router.post('/', authenticateAdmin, validate(validateBlog), createBlog);
+router.post('/upload-image', authenticateAdmin, uploadBlogImage, handleUploadBlogImage);
 router.get('/check-slug', checkSlug);
 router.get('/', optionalAuthenticateAdmin, validate(validateBlogListQuery), getAllBlogs);
 router.get('/:slugOrId', optionalAuthenticateAdmin, getBlogBySlugOrId);

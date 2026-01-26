@@ -96,6 +96,18 @@ export const BlogsPage = () => {
     }
   };
 
+  const handleTogglePublish = async (blog: Blog) => {
+    try {
+      const newStatus: BlogStatus = blog.status === 'published' ? 'draft' : 'published';
+      await blogsApi.update(blog._id, { status: newStatus });
+      toast.success(`Blog ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+      await fetchBlogs();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update blog status');
+    }
+  };
+
   const img = (b: Blog) => b.featuredImage || b.thumbnail;
 
   return (
@@ -180,6 +192,14 @@ export const BlogsPage = () => {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
+                          <Button 
+                            variant="outline" 
+                            className="h-8 px-2" 
+                            onClick={() => handleTogglePublish(b)}
+                            title={b.status === 'published' ? 'Unpublish' : 'Publish'}
+                          >
+                            {b.status === 'published' ? 'Unpublish' : 'Publish'}
+                          </Button>
                           <Button variant="outline" className="h-8 px-2" onClick={() => navigate(`/blogs/${b._id}/edit`)}>
                             <Pencil className="h-3.5 w-3" />
                           </Button>

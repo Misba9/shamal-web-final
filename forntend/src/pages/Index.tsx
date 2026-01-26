@@ -6,6 +6,7 @@ import { ServicesSection } from '@/components/sections/ServicesSection';
 import { SectorsSection } from '@/components/sections/SectorsSection';
 import { AboutPreview } from '@/components/sections/AboutPreview';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
+import { ProductsSection } from '@/components/sections/ProductsSection';
 import { BlogsSection } from '@/components/sections/BlogsSection';
 import { CTASection } from '@/components/sections/CTASection';
 import { useLenis } from '@/hooks/use-lenis';
@@ -46,6 +47,7 @@ const Index = () => {
         <SectorsSection />
         <AboutPreview />
         <ProjectsSection limit={6} showViewAll={true} />
+        <ProductsSection limit={6} showViewAll={true} />
         <BlogsSection />
         <CTASection />
         

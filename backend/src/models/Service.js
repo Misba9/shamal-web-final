@@ -7,10 +7,10 @@ function slugify(text) {
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'post';
+    .replace(/^-|-$/g, '') || 'service';
 }
 
-const blogSchema = new mongoose.Schema(
+const serviceSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -25,21 +25,22 @@ const blogSchema = new mongoose.Schema(
       unique: true,
       maxlength: [300, 'Slug cannot exceed 300 characters'],
     },
-    excerpt: {
+    shortDescription: {
+      type: String,
+      required: [true, 'Short description is required'],
+      trim: true,
+      maxlength: [500, 'Short description cannot exceed 500 characters'],
+    },
+    description: {
+      type: String,
+      required: [true, 'Description is required'],
+      trim: true,
+    },
+    icon: {
       type: String,
       trim: true,
       default: '',
-      maxlength: [500, 'Excerpt cannot exceed 500 characters'],
-    },
-    content: {
-      type: String,
-      required: [true, 'Content is required'],
-    },
-    author: {
-      type: String,
-      trim: true,
-      default: '',
-      maxlength: [100, 'Author name cannot exceed 100 characters'],
+      maxlength: [1000, 'Icon URL cannot exceed 1000 characters'],
     },
     featuredImage: {
       type: String,
@@ -47,49 +48,34 @@ const blogSchema = new mongoose.Schema(
       default: '',
       maxlength: [1000, 'Featured image URL cannot exceed 1000 characters'],
     },
-    status: {
-      type: String,
-      enum: {
-        values: ['draft', 'published'],
-        message: 'Status must be draft or published',
-      },
-      default: 'draft',
+    isActive: {
+      type: Boolean,
+      default: true,
     },
-    // SEO – optional
-    metaTitle: {
-      type: String,
-      trim: true,
-      default: '',
-      maxlength: [70, 'Meta title should be under 70 characters for SEO'],
+    showOnHome: {
+      type: Boolean,
+      default: true,
     },
-    metaDescription: {
+    // SEO Fields
+    seoTitle: {
       type: String,
       trim: true,
       default: '',
-      maxlength: [160, 'Meta description should be under 160 characters for SEO'],
+      maxlength: [70, 'SEO title should be under 70 characters for SEO'],
     },
-    keywords: {
+    seoDescription: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [160, 'SEO description should be under 160 characters for SEO'],
+    },
+    seoKeywords: {
       type: [String],
       default: [],
       validate: {
         validator: (v) => Array.isArray(v) && v.length <= 20,
-        message: 'Keywords cannot exceed 20 items',
+        message: 'SEO keywords cannot exceed 20 items',
       },
-    },
-    publishedAt: {
-      type: Date,
-      default: null,
-    },
-    // Backward compatibility with existing documents
-    thumbnail: {
-      type: String,
-      trim: true,
-      default: '',
-      maxlength: [1000, 'Thumbnail URL cannot exceed 1000 characters'],
-    },
-    published: {
-      type: Boolean,
-      default: false,
     },
   },
   {
@@ -100,7 +86,7 @@ const blogSchema = new mongoose.Schema(
 );
 
 // Auto-generate slug from title when slug is empty
-blogSchema.pre('save', async function (next) {
+serviceSchema.pre('save', async function (next) {
   try {
     const raw = String(this.slug || '').trim();
     if (!raw) {
@@ -115,24 +101,16 @@ blogSchema.pre('save', async function (next) {
     } else {
       this.slug = raw.toLowerCase();
     }
-
-    // Sync published flag from status for backward compatibility
-    this.published = this.status === 'published';
-
-    // Set publishedAt when status becomes published
-    if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
-      this.publishedAt = new Date();
-    }
     next();
   } catch (err) {
     next(err);
   }
 });
 
-blogSchema.index({ status: 1 });
-blogSchema.index({ createdAt: -1 });
-blogSchema.index({ publishedAt: -1 });
+serviceSchema.index({ isActive: 1 });
+serviceSchema.index({ showOnHome: 1 });
+serviceSchema.index({ createdAt: -1 });
 
-const Blog = mongoose.model('Blog', blogSchema);
+const Service = mongoose.model('Service', serviceSchema);
 
-export default Blog;
+export default Service;

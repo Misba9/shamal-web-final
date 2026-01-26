@@ -37,9 +37,12 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 };
 
-function excerptFromContent(html: string | undefined, max = 200) {
-  if (!html) return '—';
-  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+function excerptFromContent(blog: Blog | undefined, max = 200) {
+  if (!blog) return '—';
+  // Use excerpt if available, otherwise extract from content
+  if (blog.excerpt) return blog.excerpt;
+  if (!blog.content) return '—';
+  const text = blog.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   return text.length <= max ? text : text.slice(0, max) + '…';
 }
 
@@ -80,7 +83,7 @@ const Blog = () => {
   }, [slug]);
 
   const filteredPosts = posts.filter((post) => {
-    const excerpt = excerptFromContent(post.content);
+    const excerpt = excerptFromContent(post);
     const tags = post.keywords || [];
     const matchesCategory = activeCategory === 'all' || tags.some((t) => t.toLowerCase().includes(activeCategory));
     const matchesSearch = searchQuery === '' ||
@@ -142,8 +145,8 @@ const Blog = () => {
     return (
       <>
         <SEO
-          title={single ? `${single.title} - Blog` : 'Blog'}
-          description={single ? excerptFromContent(single.content, 160) : 'Blog post'}
+          title={single ? (single.metaTitle || `${single.title} - Blog`) : 'Blog'}
+          description={single ? (single.metaDescription || excerptFromContent(single, 160)) : 'Blog post'}
           canonical={`/blog/${slug}`}
         />
         <main className="min-h-screen bg-background">
@@ -164,9 +167,19 @@ const Blog = () => {
               <div className="container mx-auto px-4 md:px-6 max-w-3xl">
                 <Link to="/blog" className="text-primary hover:underline text-sm mb-6 inline-block">← Back to Blog</Link>
                 <h1 className="font-display font-bold text-3xl md:text-4xl mb-4">{single.title}</h1>
-                <p className="text-muted-foreground text-sm mb-8">
-                  {formatDate(single.publishedAt || single.createdAt)} · {readTimeFromContent(single.content)}
-                </p>
+                <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm mb-8">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {formatDate(single.publishedAt || single.createdAt)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {readTimeFromContent(single.content)}
+                  </span>
+                  {single.author && (
+                    <span>By {single.author}</span>
+                  )}
+                </div>
                 {(single.featuredImage || single.thumbnail) && (
                   <img
                     src={getImageSrc(single.featuredImage || single.thumbnail)}
@@ -249,7 +262,7 @@ const Blog = () => {
                           {post.title}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                          {excerptFromContent(post.content)}
+                          {excerptFromContent(post)}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-auto">
                           <span className="flex items-center gap-1">
@@ -333,7 +346,7 @@ const Blog = () => {
                       {post.title}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4 flex-grow line-clamp-3">
-                      {excerptFromContent(post.content)}
+                      {excerptFromContent(post)}
                     </p>
                     
                     <div className="flex flex-wrap gap-2 mb-4">

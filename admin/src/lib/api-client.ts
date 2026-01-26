@@ -52,6 +52,7 @@ export interface DashboardData {
 export interface Category {
   _id: string;
   name: string;
+  slug?: string;
 }
 
 export interface Project {
@@ -95,7 +96,9 @@ export interface Blog {
   _id: string;
   title: string;
   slug: string;
+  excerpt?: string;
   content: string;
+  author?: string;
   featuredImage?: string;
   thumbnail?: string;
   status: BlogStatus;
@@ -148,6 +151,10 @@ export const categoriesApi = {
   },
   create: async (data: { name: string }): Promise<{ success: boolean; message: string; data: Category }> => {
     const response = await apiClient.post<{ success: boolean; message: string; data: Category }>('/categories', data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string }>(`/categories/${id}`);
     return response.data;
   },
 };
@@ -221,6 +228,263 @@ export const blogsApi = {
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Blog }> => {
     const response = await apiClient.delete<{ success: boolean; message: string; data: Blog }>(`/blogs/${id}`);
+    return response.data;
+  },
+  uploadImage: async (file: File): Promise<{ success: boolean; url: string }> => {
+    const form = new FormData();
+    form.append('image', file);
+    const response = await apiClient.post<{ success: boolean; url: string }>('/blogs/upload-image', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+};
+
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  shortDescription?: string;
+  description?: string;
+  image?: string;
+  price?: number | null;
+  isActive: boolean;
+  showOnHome: boolean;
+  order?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductsResponse {
+  success: boolean;
+  count: number;
+  data: Product[];
+}
+
+export interface ProductsListParams {
+  active?: boolean;
+  home?: boolean;
+}
+
+export const productsApi = {
+  getAll: async (params?: ProductsListParams): Promise<ProductsResponse> => {
+    const sp = new URLSearchParams();
+    if (params?.active === true) sp.set('active', 'true');
+    if (params?.active === false) sp.set('active', 'false');
+    if (params?.home === true) sp.set('home', 'true');
+    if (params?.home === false) sp.set('home', 'false');
+    const q = sp.toString();
+    const response = await apiClient.get<ProductsResponse>(`/products${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  getBySlug: async (slug: string): Promise<{ success: boolean; data: Product }> => {
+    const response = await apiClient.get<{ success: boolean; data: Product }>(`/products/${slug}`);
+    return response.data;
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Product }> => {
+    // Backend supports getting by ID when slug is an ObjectId (for admin)
+    const response = await apiClient.get<{ success: boolean; data: Product }>(`/products/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Product>): Promise<{ success: boolean; message: string; data: Product }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Product }>('/products', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Product>): Promise<{ success: boolean; message: string; data: Product }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Product }>(`/products/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Product }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Product }>(`/products/${id}`);
+    return response.data;
+  },
+  uploadImage: async (file: File): Promise<{ success: boolean; url: string }> => {
+    const form = new FormData();
+    form.append('image', file);
+    const response = await apiClient.post<{ success: boolean; url: string }>('/products/upload-image', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+};
+
+export interface Service {
+  _id: string;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  description: string;
+  icon?: string;
+  featuredImage?: string;
+  isActive: boolean;
+  showOnHome: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServicesResponse {
+  success: boolean;
+  count: number;
+  data: Service[];
+}
+
+export interface ServicesListParams {
+  active?: boolean;
+  home?: boolean;
+}
+
+export const servicesApi = {
+  getAll: async (params?: ServicesListParams): Promise<ServicesResponse> => {
+    const sp = new URLSearchParams();
+    if (params?.active === true) sp.set('active', 'true');
+    if (params?.active === false) sp.set('active', 'false');
+    if (params?.home === true) sp.set('home', 'true');
+    if (params?.home === false) sp.set('home', 'false');
+    const q = sp.toString();
+    const response = await apiClient.get<ServicesResponse>(`/services${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  getBySlug: async (slug: string): Promise<{ success: boolean; data: Service }> => {
+    const response = await apiClient.get<{ success: boolean; data: Service }>(`/services/${slug}`);
+    return response.data;
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Service }> => {
+    const response = await apiClient.get<{ success: boolean; data: Service }>(`/services/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Service>): Promise<{ success: boolean; message: string; data: Service }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Service }>('/services', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Service>): Promise<{ success: boolean; message: string; data: Service }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Service }>(`/services/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Service }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Service }>(`/services/${id}`);
+    return response.data;
+  },
+  uploadImage: async (file: File): Promise<{ success: boolean; url: string }> => {
+    const form = new FormData();
+    form.append('image', file);
+    const response = await apiClient.post<{ success: boolean; url: string }>('/services/upload-image', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+};
+
+export type EmploymentType = 'Full-Time' | 'Part-Time' | 'Contract' | 'Internship';
+
+export interface Job {
+  _id: string;
+  title: string;
+  slug: string;
+  department?: string;
+  location?: string;
+  employmentType: EmploymentType;
+  experience?: string;
+  description: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  isActive: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JobsResponse {
+  success: boolean;
+  count: number;
+  data: Job[];
+}
+
+export interface JobsListParams {
+  active?: boolean;
+}
+
+export const jobsApi = {
+  getAll: async (params?: JobsListParams): Promise<JobsResponse> => {
+    const sp = new URLSearchParams();
+    if (params?.active === true) sp.set('active', 'true');
+    if (params?.active === false) sp.set('active', 'false');
+    const q = sp.toString();
+    const response = await apiClient.get<JobsResponse>(`/jobs${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  getBySlug: async (slug: string): Promise<{ success: boolean; data: Job }> => {
+    const response = await apiClient.get<{ success: boolean; data: Job }>(`/jobs/${slug}`);
+    return response.data;
+  },
+  getById: async (id: string): Promise<{ success: boolean; data: Job }> => {
+    const response = await apiClient.get<{ success: boolean; data: Job }>(`/jobs/${id}`);
+    return response.data;
+  },
+  create: async (data: Partial<Job>): Promise<{ success: boolean; message: string; data: Job }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Job }>('/jobs', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<Job>): Promise<{ success: boolean; message: string; data: Job }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Job }>(`/jobs/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string; data: Job }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string; data: Job }>(`/jobs/${id}`);
+    return response.data;
+  },
+};
+
+export type ApplicationStatus = 'New' | 'Reviewed' | 'Shortlisted' | 'Rejected';
+
+export interface JobApplication {
+  _id: string;
+  jobId: string | { _id: string; title: string; slug?: string };
+  jobTitle: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  coverLetter?: string;
+  resumeUrl: string;
+  status: ApplicationStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApplicationsResponse {
+  success: boolean;
+  count: number;
+  data: JobApplication[];
+}
+
+export interface ApplicationsListParams {
+  jobId?: string;
+}
+
+export const applicationsApi = {
+  getAll: async (params?: ApplicationsListParams): Promise<ApplicationsResponse> => {
+    const sp = new URLSearchParams();
+    if (params?.jobId) sp.set('jobId', params.jobId);
+    const q = sp.toString();
+    const response = await apiClient.get<ApplicationsResponse>(`/admin/applications${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  getByJob: async (jobId: string): Promise<ApplicationsResponse> => {
+    const response = await apiClient.get<ApplicationsResponse>(`/admin/applications/job/${jobId}`);
+    return response.data;
+  },
+  updateStatus: async (id: string, status: ApplicationStatus): Promise<{ success: boolean; message: string; data: JobApplication }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: JobApplication }>(`/admin/applications/${id}`, { status });
     return response.data;
   },
 };

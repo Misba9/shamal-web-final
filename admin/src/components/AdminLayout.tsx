@@ -7,6 +7,9 @@ import {
   FileText,
   Mail,
   Newspaper,
+  Package,
+  Settings,
+  Briefcase,
   LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,6 +17,10 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
+  { to: '/products', label: 'Products', icon: Package },
+  { to: '/services', label: 'Services', icon: Settings },
+  { to: '/jobs', label: 'Jobs', icon: Briefcase },
+  { to: '/applications', label: 'Applications', icon: FileText },
   { to: '/blogs', label: 'Blogs', icon: FileText },
   { to: '/contacts', label: 'Contacts', icon: Mail },
   { to: '/newsletter', label: 'Newsletter', icon: Newspaper },

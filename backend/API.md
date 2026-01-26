@@ -24,6 +24,44 @@ const { data } = await res.json();
 
 ---
 
+## Project Categories
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | /categories | Public | List all categories |
+| POST | /categories | Admin | Create category (body: `name`) |
+| DELETE | /categories/:id | Admin | Delete category (prevents deletion if linked to projects) |
+
+**Example (public – list categories):**
+```js
+const res = await fetch(`${API_BASE}/categories`);
+const { data } = await res.json();
+```
+
+**Example (admin – create category):**
+```js
+await fetch(`${API_BASE}/categories`, {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer <JWT>'
+  },
+  body: JSON.stringify({ name: 'Infrastructure' }),
+});
+```
+
+**Example (admin – delete category):**
+```js
+await fetch(`${API_BASE}/categories/${categoryId}`, {
+  method: 'DELETE',
+  headers: { 'Authorization': 'Bearer <JWT>' },
+});
+```
+
+**Note:** Categories have a `slug` field that is auto-generated from the `name` field. The slug is used for URL-friendly identifiers.
+
+---
+
 ## Blogs
 
 | Method | Path | Auth | Description |

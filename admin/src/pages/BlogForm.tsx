@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { blogsApi, Blog, BlogStatus } from '@/lib/api-client';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RichTextEditor } from '@/components/RichTextEditor';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, X } from 'lucide-react';
 
 function slugify(s: string) {
   return s
@@ -33,10 +33,17 @@ export const BlogFormPage = () => {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugCheck, setSlugCheck] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [imageMode, setImageMode] = useState<'url' | 'upload'>('url');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     title: '',
     slug: '',
+    excerpt: '',
     content: '',
+    author: '',
     featuredImage: '',
     status: 'draft' as BlogStatus,
     metaTitle: '',
@@ -55,11 +62,14 @@ export const BlogFormPage = () => {
         const res = await blogsApi.getById(id!);
         if (cancelled) return;
         const b: Blog = res.data;
+        const imageUrl = b.featuredImage || b.thumbnail || '';
         setForm({
           title: b.title || '',
           slug: b.slug || '',
+          excerpt: b.excerpt || '',
           content: b.content || '',
-          featuredImage: b.featuredImage || b.thumbnail || '',
+          author: b.author || '',
+          featuredImage: imageUrl,
           status: (b.status as BlogStatus) || 'draft',
           metaTitle: b.metaTitle || '',
           metaDescription: b.metaDescription || '',
@@ -67,6 +77,9 @@ export const BlogFormPage = () => {
           keywordInput: '',
           publishedAt: toDateInput(b.publishedAt),
         });
+        // Set image mode based on whether it's an upload path or external URL
+        setImageMode(imageUrl.startsWith('/uploads/blogs') ? 'upload' : 'url');
+        setImagePreview(imageUrl ? getImageSrc(imageUrl) : '');
       } catch (e) {
         if (!cancelled) toast.error('Failed to load blog');
         navigate('/blogs');
@@ -99,7 +112,9 @@ export const BlogFormPage = () => {
       const payload: Record<string, unknown> = {
         title: form.title.trim(),
         slug: form.slug.trim() || undefined,
+        excerpt: form.excerpt.trim() || undefined,
         content: (form.content || '').trim(),
+        author: form.author.trim() || undefined,
         featuredImage: form.featuredImage.trim() || undefined,
         thumbnail: form.featuredImage.trim() || undefined,
         status: form.status,
@@ -160,6 +175,82 @@ export const BlogFormPage = () => {
 
   const removeKeyword = (i: number) => {
     setForm((f) => ({ ...f, keywords: f.keywords.filter((_, j) => j !== i) }));
+  };
+
+  const handleImageModeChange = (mode: 'url' | 'upload') => {
+    setImageMode(mode);
+    // Clear the other mode's data when switching
+    if (mode === 'url') {
+      setUploadedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } else {
+      setForm((f) => ({ ...f, featuredImage: '' }));
+    }
+    setImagePreview('');
+    setErrors((e) => ({ ...e, featuredImage: '' }));
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/i)) {
+      setErrors((e) => ({ ...e, featuredImage: 'Only jpg, png, jpeg, and webp images are allowed' }));
+      return;
+    }
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors((e) => ({ ...e, featuredImage: 'Image size must be less than 2MB' }));
+      return;
+    }
+
+    setUploadedFile(file);
+    setErrors((e) => ({ ...e, featuredImage: '' }));
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload immediately
+    setUploadingImage(true);
+    try {
+      const res = await blogsApi.uploadImage(file);
+      setForm((f) => ({ ...f, featuredImage: res.url }));
+      toast.success('Image uploaded successfully');
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to upload image';
+      setErrors((e) => ({ ...e, featuredImage: errorMsg }));
+      toast.error(errorMsg);
+      setImagePreview('');
+      setUploadedFile(null);
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleImageUrlChange = (url: string) => {
+    setForm((f) => ({ ...f, featuredImage: url }));
+    setErrors((e) => ({ ...e, featuredImage: '' }));
+    // Show preview if valid URL
+    if (url.trim()) {
+      setImagePreview(getImageSrc(url));
+    } else {
+      setImagePreview('');
+    }
+  };
+
+  const clearImage = () => {
+    setForm((f) => ({ ...f, featuredImage: '' }));
+    setImagePreview('');
+    setUploadedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setErrors((e) => ({ ...e, featuredImage: '' }));
   };
 
   if (loading) {
@@ -223,6 +314,20 @@ export const BlogFormPage = () => {
         </div>
 
         <div>
+          <Label htmlFor="excerpt">Excerpt</Label>
+          <textarea
+            id="excerpt"
+            value={form.excerpt}
+            onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
+            rows={3}
+            className="mt-1 w-full rounded-md border border-input px-3 py-2 text-sm"
+            placeholder="Short description of the blog post (optional)"
+            maxLength={500}
+          />
+          <p className="mt-0.5 text-xs text-[#999]">{form.excerpt.length}/500</p>
+        </div>
+
+        <div>
           <Label htmlFor="content">Content *</Label>
           <div className="mt-1">
             <RichTextEditor
@@ -236,15 +341,127 @@ export const BlogFormPage = () => {
         </div>
 
         <div>
-          <Label>Featured image (URL)</Label>
+          <Label htmlFor="author">Author</Label>
           <Input
-            value={form.featuredImage}
-            onChange={(e) => setForm((f) => ({ ...f, featuredImage: e.target.value }))}
-            placeholder="Paste image URL (e.g. https://...)"
+            id="author"
+            value={form.author}
+            onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))}
+            placeholder="Author name (optional)"
             className="mt-1"
+            maxLength={100}
           />
-          {form.featuredImage && (
-            <img src={getImageSrc(form.featuredImage)} alt="" className="mt-2 h-24 w-24 rounded object-cover" />
+        </div>
+
+        <div>
+          <Label>Featured Image</Label>
+          
+          {/* Mode Toggle */}
+          <div className="mt-1 mb-3 flex gap-2 border-b border-[#e5e5e5]">
+            <button
+              type="button"
+              onClick={() => handleImageModeChange('url')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                imageMode === 'url'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-[#666] hover:text-[#111]'
+              }`}
+            >
+              Image URL
+            </button>
+            <button
+              type="button"
+              onClick={() => handleImageModeChange('upload')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                imageMode === 'upload'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-[#666] hover:text-[#111]'
+              }`}
+            >
+              Upload Image
+            </button>
+          </div>
+
+          {/* URL Mode */}
+          {imageMode === 'url' && (
+            <div>
+              <Input
+                value={form.featuredImage}
+                onChange={(e) => handleImageUrlChange(e.target.value)}
+                placeholder="Paste image URL (e.g. https://... or /uploads/...)"
+                className="mt-1"
+                disabled={uploadingImage}
+              />
+              {errors.featuredImage && imageMode === 'url' && (
+                <p className="mt-1 text-sm text-red-600">{errors.featuredImage}</p>
+              )}
+            </div>
+          )}
+
+          {/* Upload Mode */}
+          {imageMode === 'upload' && (
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="blog-image-upload"
+                disabled={uploadingImage}
+              />
+              <div className="mt-1 flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="inline-flex items-center gap-2"
+                >
+                  {uploadingImage ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    'Choose Image'
+                  )}
+                </Button>
+                {form.featuredImage && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={clearImage}
+                    disabled={uploadingImage}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-[#999]">Max 2MB. Formats: JPG, PNG, WebP</p>
+              {errors.featuredImage && imageMode === 'upload' && (
+                <p className="mt-1 text-sm text-red-600">{errors.featuredImage}</p>
+              )}
+            </div>
+          )}
+
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="mt-4 relative inline-block">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="h-48 w-auto rounded border border-[#e5e5e5] object-cover"
+              />
+              <button
+                type="button"
+                onClick={clearImage}
+                className="absolute -top-2 -right-2 rounded-full bg-red-600 text-white p-1 hover:bg-red-700"
+                title="Remove image"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
           )}
         </div>
 
@@ -331,7 +548,7 @@ export const BlogFormPage = () => {
         </div>
 
         <div className="flex flex-wrap gap-3 pt-2">
-          <Button type="submit" disabled={saving}>
+          <Button type="submit" disabled={saving || uploadingImage}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
           <Button type="button" variant="outline" onClick={() => setPreviewOpen(true)}>

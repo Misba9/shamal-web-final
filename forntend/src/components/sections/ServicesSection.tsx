@@ -1,37 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Plane, Building2, Search, Waves, Globe, Leaf, Box, Mountain, 
-  Shield, Brain, Wheat, Sparkles, ArrowRight
-} from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getHomeServices, type Service } from '@/lib/api';
+import { getImageSrc } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const services = [
-  { icon: Plane, title: 'Aerial Survey', description: 'High-precision aerial mapping and photogrammetry for accurate topographic data.', href: '/services/aerial-survey' },
-  { icon: Building2, title: 'Construction Monitoring', description: 'Real-time construction progress tracking with drone-based documentation.', href: '/services/construction-monitoring' },
-  { icon: Search, title: 'Asset Inspection', description: 'Comprehensive infrastructure inspection using advanced imaging systems.', href: '/services/asset-inspection' },
-  { icon: Waves, title: 'Bathymetric Survey', description: 'Underwater mapping and hydrographic surveys for marine projects.', href: '/services/bathymetric-survey' },
-  { icon: Globe, title: 'GIS & Remote Sensing', description: 'Geospatial data analysis and satellite imagery interpretation.', href: '/services/gis-remote-sensing' },
-  { icon: Leaf, title: 'Environmental Monitoring', description: 'Ecosystem assessment and environmental impact studies.', href: '/services/environmental-monitoring' },
-  { icon: Box, title: 'SCAN/CAD to BIM', description: '3D scanning and BIM modeling for construction and architecture.', href: '/services/scan-cad-bim' },
-  { icon: Mountain, title: 'Mining & Exploration', description: 'Volumetric analysis and mineral exploration surveys.', href: '/services/mining-exploration' },
-  { icon: Shield, title: 'Security Surveillance', description: 'Aerial security monitoring and threat assessment.', href: '/services/security-surveillance' },
-  { icon: Brain, title: 'AI Development', description: 'Custom AI solutions for automated data processing and analysis.', href: '/services/ai-development' },
-  { icon: Wheat, title: 'Agriculture Monitoring', description: 'Crop health analysis and precision agriculture solutions.', href: '/services/agriculture-monitoring' },
-  { icon: Sparkles, title: 'Special Projects', description: 'Custom drone solutions for unique industry requirements.', href: '/services/special-projects' },
-];
-
 export function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await getHomeServices();
+        if (res.success && Array.isArray(res.data)) {
+          setServices(res.data);
+        }
+      } catch (error) {
+        console.error('Error loading services:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    if (loading || services.length === 0) return;
+    
     const ctx = gsap.context(() => {
       // Animate Header
       if (headerRef.current) {
@@ -66,7 +70,7 @@ export function ServicesSection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading, services]);
 
   return (
     <section ref={sectionRef} className="section-padding bg-muted/30 relative overflow-hidden">
@@ -91,35 +95,59 @@ export function ServicesSection() {
         </div>
 
         {/* Services Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <Link key={service.href} to={service.href} className="group block h-full">
-              <Card className="h-full card-hover border-border/60 bg-background/50 backdrop-blur-sm overflow-hidden relative">
-                <CardContent className="p-6 md:p-8 flex flex-col h-full relative z-10">
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300">
-                    <service.icon className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                  </div>
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+          </div>
+        ) : services.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">No services available at the moment.</p>
+          </div>
+        ) : (
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <Link key={service._id} to={`/services/${service.slug}`} className="group block h-full">
+                <Card className="h-full card-hover border-border/60 bg-background/50 backdrop-blur-sm overflow-hidden relative">
+                  <CardContent className="p-6 md:p-8 flex flex-col h-full relative z-10">
+                    {(service.icon || service.featuredImage) && (
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300 overflow-hidden">
+                        {service.icon ? (
+                          <img 
+                            src={getImageSrc(service.icon)} 
+                            alt={service.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img 
+                            src={getImageSrc(service.featuredImage || '')} 
+                            alt={service.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    )}
+                    
+                    <h3 className="text-lg md:text-xl font-display font-bold mb-3 group-hover:text-primary transition-colors">
+                      {service.title}
+                    </h3>
+                    
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 flex-grow">
+                      {service.shortDescription}
+                    </p>
+                    
+                    <div className="flex items-center text-sm font-semibold text-primary/80 group-hover:text-primary transition-colors mt-auto">
+                      Learn more 
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </CardContent>
                   
-                  <h3 className="text-lg md:text-xl font-display font-bold mb-3 group-hover:text-primary transition-colors">
-                    {service.title}
-                  </h3>
-                  
-                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 flex-grow">
-                    {service.description}
-                  </p>
-                  
-                  <div className="flex items-center text-sm font-semibold text-primary/80 group-hover:text-primary transition-colors mt-auto">
-                    Learn more 
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </CardContent>
-                
-                {/* Hover Gradient Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              </Card>
-            </Link>
-          ))}
-        </div>
+                  {/* Hover Gradient Background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <div className="text-center mt-12 md:mt-16">

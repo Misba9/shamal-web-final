@@ -2,6 +2,29 @@ import Blog from '../models/Blog.js';
 
 const BLOG_STATUS = ['draft', 'published'];
 
+/**
+ * POST /api/blogs/upload-image
+ * Multipart form with 'image' (single file). Stores in /uploads/blogs.
+ * Returns { success: true, url: string } (e.g. /uploads/blogs/xxx.jpg)
+ */
+export const handleUploadBlogImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided',
+      });
+    }
+    const url = `/uploads/blogs/${req.file.filename}`;
+    res.status(200).json({
+      success: true,
+      url,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 function safeTrim(s) {
   return s == null ? '' : String(s).trim();
 }
@@ -41,12 +64,14 @@ export const checkSlug = async (req, res, next) => {
 
 export const createBlog = async (req, res, next) => {
   try {
-    const { title, slug, content, featuredImage, thumbnail, status, metaTitle, metaDescription, keywords, publishedAt } = req.body;
+    const { title, slug, excerpt, content, author, featuredImage, thumbnail, status, metaTitle, metaDescription, keywords, publishedAt } = req.body;
 
     const doc = {
       title: safeTrim(title),
       slug: slug ? safeTrim(slug).toLowerCase() : undefined,
+      excerpt: safeTrim(excerpt) || '',
       content: safeTrim(content),
+      author: safeTrim(author) || '',
       featuredImage: safeTrim(featuredImage) || safeTrim(thumbnail) || '',
       thumbnail: safeTrim(thumbnail) || safeTrim(featuredImage) || '',
       status: status && BLOG_STATUS.includes(status) ? status : 'draft',
@@ -76,12 +101,21 @@ export const getAllBlogs = async (req, res, next) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
     const search = String(req.query.search || '').trim();
     const status = req.query.status;
+    const published = req.query.published; // Support ?published=true filter
     const isAdmin = !!req.admin;
 
     const filter = {};
     if (isAdmin) {
-      if (status && BLOG_STATUS.includes(status)) filter.status = status;
+      // Admin can filter by status or published flag
+      if (status && BLOG_STATUS.includes(status)) {
+        filter.status = status;
+      } else if (published === 'true') {
+        filter.status = 'published';
+      } else if (published === 'false') {
+        filter.status = 'draft';
+      }
     } else {
+      // Public: only published blogs
       filter.status = 'published';
     }
     if (search) {
@@ -179,7 +213,9 @@ export const updateBlog = async (req, res, next) => {
 
     if (body.title !== undefined) updateData.title = safeTrim(body.title);
     if (body.slug !== undefined) updateData.slug = safeTrim(body.slug).toLowerCase();
+    if (body.excerpt !== undefined) updateData.excerpt = safeTrim(body.excerpt);
     if (body.content !== undefined) updateData.content = safeTrim(body.content);
+    if (body.author !== undefined) updateData.author = safeTrim(body.author);
     if (body.featuredImage !== undefined) updateData.featuredImage = safeTrim(body.featuredImage);
     if (body.thumbnail !== undefined) updateData.thumbnail = safeTrim(body.thumbnail);
     if (body.status !== undefined && BLOG_STATUS.includes(body.status)) {
