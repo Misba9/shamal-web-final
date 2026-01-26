@@ -15,6 +15,7 @@ import jobApplicationRoutes from './routes/jobApplication.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.middleware.js';
+import { rateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,17 +35,40 @@ app.use(helmet({
 /**
  * CORS: allow only CLIENT_URL (frontend) and ADMIN_URL (admin panel).
  * Authorization header is required for protected admin APIs.
+ * Normalize URLs to handle trailing slashes from Vercel.
  */
+const normalizeUrl = (url) => {
+  if (!url) return null;
+  return url.trim().replace(/\/$/, '');
+};
+
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  process.env.ADMIN_URL,
+  normalizeUrl(process.env.CLIENT_URL),
+  normalizeUrl(process.env.ADMIN_URL),
 ].filter(Boolean);
+
+// In development, allow localhost
+if (process.env.NODE_ENV === 'development') {
+  allowedOrigins.push('http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173');
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, Postman, etc.) in development only
+    if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    if (!origin) {
+      return callback(new Error('Not allowed by CORS'));
+    }
+
+    const normalizedOrigin = normalizeUrl(origin);
+    
+    if (allowedOrigins.includes(normalizedOrigin)) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -53,6 +77,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400,
 }));
+
+// Apply rate limiting to all routes
+app.use(rateLimiter);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

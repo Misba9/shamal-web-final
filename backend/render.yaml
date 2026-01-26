@@ -1,0 +1,22 @@
+# Render Blueprint Configuration
+# This file helps automate deployment on Render
+
+services:
+  - type: web
+    name: shamal-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_URL
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set manually in Render dashboard
+      - key: CLIENT_URL
+        sync: false  # Set manually after frontend deployment
+      - key: ADMIN_URL
+        sync: false  # Set manually after admin deployment
