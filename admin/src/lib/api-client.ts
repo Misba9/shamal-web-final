@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+﻿import { apiClient } from './api';
 
 export interface Admin {
   id: string;
@@ -177,12 +177,16 @@ export const projectsApi = {
     const response = await apiClient.get<{ success: boolean; data: Project }>(`/projects/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Project>): Promise<{ success: boolean; message: string; data: Project }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Project }>('/projects', data);
+  create: async (data: Partial<Project> | FormData): Promise<{ success: boolean; message: string; data: Project }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Project }>('/projects', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Project>): Promise<{ success: boolean; message: string; data: Project }> => {
-    const response = await apiClient.put<{ success: boolean; message: string; data: Project }>(`/projects/${id}`, data);
+  update: async (id: string, data: Partial<Project> | FormData): Promise<{ success: boolean; message: string; data: Project }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Project }>(`/projects/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Project }> => {
@@ -218,12 +222,16 @@ export const blogsApi = {
     const response = await apiClient.get<{ success: boolean; data: Blog }>(`/blogs/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Blog>): Promise<{ success: boolean; message: string; data: Blog }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Blog }>('/blogs', data);
+  create: async (data: Partial<Blog> | FormData): Promise<{ success: boolean; message: string; data: Blog }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Blog }>('/blogs', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Blog>): Promise<{ success: boolean; message: string; data: Blog }> => {
-    const response = await apiClient.put<{ success: boolean; message: string; data: Blog }>(`/blogs/${id}`, data);
+  update: async (id: string, data: Partial<Blog> | FormData): Promise<{ success: boolean; message: string; data: Blog }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Blog }>(`/blogs/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Blog }> => {
@@ -288,12 +296,16 @@ export const productsApi = {
     const response = await apiClient.get<{ success: boolean; data: Product }>(`/products/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Product>): Promise<{ success: boolean; message: string; data: Product }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Product }>('/products', data);
+  create: async (data: Partial<Product> | FormData): Promise<{ success: boolean; message: string; data: Product }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Product }>('/products', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Product>): Promise<{ success: boolean; message: string; data: Product }> => {
-    const response = await apiClient.put<{ success: boolean; message: string; data: Product }>(`/products/${id}`, data);
+  update: async (id: string, data: Partial<Product> | FormData): Promise<{ success: boolean; message: string; data: Product }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Product }>(`/products/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Product }> => {
@@ -359,12 +371,16 @@ export const servicesApi = {
     const response = await apiClient.get<{ success: boolean; data: Service }>(`/services/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Service>): Promise<{ success: boolean; message: string; data: Service }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Service }>('/services', data);
+  create: async (data: Partial<Service> | FormData): Promise<{ success: boolean; message: string; data: Service }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Service }>('/services', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Service>): Promise<{ success: boolean; message: string; data: Service }> => {
-    const response = await apiClient.put<{ success: boolean; message: string; data: Service }>(`/services/${id}`, data);
+  update: async (id: string, data: Partial<Service> | FormData): Promise<{ success: boolean; message: string; data: Service }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Service }>(`/services/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Service }> => {
@@ -431,12 +447,16 @@ export const jobsApi = {
     const response = await apiClient.get<{ success: boolean; data: Job }>(`/jobs/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Job>): Promise<{ success: boolean; message: string; data: Job }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Job }>('/jobs', data);
+  create: async (data: Partial<Job> | FormData): Promise<{ success: boolean; message: string; data: Job }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Job }>('/jobs', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Job>): Promise<{ success: boolean; message: string; data: Job }> => {
-    const response = await apiClient.put<{ success: boolean; message: string; data: Job }>(`/jobs/${id}`, data);
+  update: async (id: string, data: Partial<Job> | FormData): Promise<{ success: boolean; message: string; data: Job }> => {
+    const response = await apiClient.put<{ success: boolean; message: string; data: Job }>(`/jobs/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: Job }> => {
@@ -537,12 +557,16 @@ export const leadsApi = {
     const response = await apiClient.get<{ success: boolean; data: Lead }>(`/contacts/${id}`);
     return response.data;
   },
-  create: async (data: Partial<Lead>): Promise<{ success: boolean; message: string; data: Lead }> => {
-    const response = await apiClient.post<{ success: boolean; message: string; data: Lead }>('/contacts', data);
+  create: async (data: Partial<Lead> | FormData): Promise<{ success: boolean; message: string; data: Lead }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; data: Lead }>('/contacts', data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  update: async (id: string, data: Partial<Pick<Lead, 'status' | 'internalNotes' | 'emailNotify' | 'name' | 'email' | 'phone' | 'message' | 'read'>>): Promise<{ success: boolean; message: string; data: Lead }> => {
-    const response = await apiClient.patch<{ success: boolean; message: string; data: Lead }>(`/contacts/${id}`, data);
+  update: async (id: string, data: Partial<Pick<Lead, 'status' | 'internalNotes' | 'emailNotify' | 'name' | 'email' | 'phone' | 'message' | 'read'>> | FormData): Promise<{ success: boolean; message: string; data: Lead }> => {
+    const response = await apiClient.patch<{ success: boolean; message: string; data: Lead }>(`/contacts/${id}`, data, {
+      headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   /** Trigger CSV download. Uses same filters as getAll. */
@@ -596,6 +620,50 @@ export const newsletterApi = {
   },
   delete: async (id: string): Promise<{ success: boolean; message: string; data: NewsletterSubscriber }> => {
     const response = await apiClient.delete<{ success: boolean; message: string; data: NewsletterSubscriber }>(`/newsletter/${id}`);
+    return response.data;
+  },
+};
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  role?: string;
+}
+
+export interface UsersResponse {
+  success: boolean;
+  users: User[];
+  pagination: {
+    page: number;
+    pages: number;
+    total: number;
+  };
+}
+
+export const usersApi = {
+  getAll: async (page: number, limit: number): Promise<UsersResponse> => {
+    const response = await apiClient.get<UsersResponse>('/users', {
+      params: { page, limit },
+    });
+    return response.data;
+  },
+  create: async (data: RegisterData): Promise<{ success: boolean; message: string; user: User }> => {
+    const response = await apiClient.post<{ success: boolean; message: string; user: User }>('/users', data);
+    return response.data;
+  },
+  delete: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.delete<{ success: boolean; message: string }>(`/users/${id}`);
     return response.data;
   },
 };

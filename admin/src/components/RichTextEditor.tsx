@@ -39,7 +39,7 @@ export function RichTextEditor({ value, onChange, minHeight = '280px', disabled,
       attributes: {
         ...(id && { id }),
         class: 'text-[#333] [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_blockquote]:border-l-4 [&_blockquote]:border-[#ddd] [&_blockquote]:pl-4 [&_blockquote]:italic [&_a]:text-blue-600 [&_a]:underline focus:outline-none px-3 py-2',
-        style: minHeight ? `min-height: ${minHeight}` : undefined,
+        ...(minHeight && { style: `min-height: ${minHeight};` }),
       },
     },
   });

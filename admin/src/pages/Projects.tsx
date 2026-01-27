@@ -63,7 +63,7 @@ export const ProjectsPage = () => {
         archived: showArchived ? true : undefined,
       });
       setProjects(Array.isArray(res?.data) ? res.data : []);
-      setTotal(res?.pagination?.total ?? res?.total ?? 0);
+      setTotal(res?.pagination?.total ?? 0);
       setTotalPages(res?.pagination?.totalPages ?? 1);
       setError('');
     } catch (err) {

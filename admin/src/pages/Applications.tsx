@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { toast } from 'sonner';
 import { applicationsApi, jobsApi, JobApplication, Job, ApplicationStatus } from '@/lib/api-client';
 import { getImageSrc } from '@/lib/utils';
@@ -21,7 +21,6 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
 }
 
 export const ApplicationsPage = () => {
-  const navigate = useNavigate();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);

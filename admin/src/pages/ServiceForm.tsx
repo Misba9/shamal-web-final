@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { servicesApi, Service } from '@/lib/api-client';
+import { servicesApi } from '@/lib/api-client';
 import { getImageSrc } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,8 +30,8 @@ export const ServiceFormPage = () => {
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [iconPreview, setIconPreview] = useState<string>('');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadedIconFile, setUploadedIconFile] = useState<File | null>(null);
+  const [_uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [_uploadedIconFile, setUploadedIconFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const iconFileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({

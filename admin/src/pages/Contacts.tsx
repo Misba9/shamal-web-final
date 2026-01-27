@@ -126,7 +126,7 @@ export const ContactsPage = () => {
     if (!viewLead) return;
     setNotesSaving(true);
     try {
-      const res = await leadsApi.update(viewLead._id, { internalNotes: detailNotes });
+      await leadsApi.update(viewLead._id, { internalNotes: detailNotes });
       setLeads((prev) => prev.map((l) => (l._id === viewLead._id ? { ...l, internalNotes: detailNotes } : l)));
       setViewLead((l) => (l?._id === viewLead._id ? { ...l, internalNotes: detailNotes } : l));
       toast.success('Notes saved');
@@ -139,7 +139,7 @@ export const ContactsPage = () => {
 
   const handleMarkRead = async (id: string) => {
     try {
-      const res = await leadsApi.update(id, { read: true });
+      await leadsApi.update(id, { read: true });
       setLeads((prev) => prev.map((l) => (l._id === id ? { ...l, read: true } : l)));
       if (viewLead?._id === id) setViewLead((l) => (l ? { ...l, read: true } : null));
       toast.success('Marked as read');
@@ -150,7 +150,7 @@ export const ContactsPage = () => {
 
   const handleEmailNotifyToggle = async (id: string, next: boolean) => {
     try {
-      const res = await leadsApi.update(id, { emailNotify: next });
+      await leadsApi.update(id, { emailNotify: next });
       setLeads((prev) => prev.map((l) => (l._id === id ? { ...l, emailNotify: next } : l)));
       if (viewLead?._id === id) setViewLead((l) => (l ? { ...l, emailNotify: next } : null));
       toast.success(next ? 'Email notifications on' : 'Email notifications off');
